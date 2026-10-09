@@ -16,7 +16,8 @@
     "test:slow": "PITWALL_SLOW=1 vitest run --project engine",
     "test:frontend": "pnpm --filter frontend test",
     "typecheck": "tsc -p packages/shared && tsc -p packages/engine && tsc -p apps/backend && pnpm --filter frontend typecheck",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "bench": "tsx packages/engine/scripts/bench.ts"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
