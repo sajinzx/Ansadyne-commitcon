@@ -1,5 +1,5 @@
 // Typed REST client for the backend (BACKEND §B.3).
-import type { BenchRequest, Configs, Decision, ForkRequest, InjectionKind, ProblemDetails, RunConfig, RunInfo, RunSummary, SegmentOverride, StreamMessage, TrackGeometryPayload } from '@pitwall/shared';
+import type { InjectionParams, BenchRequest, Configs, Decision, ForkRequest, InjectionKind, ProblemDetails, RunConfig, RunInfo, RunSummary, SegmentOverride, StreamMessage, TrackGeometryPayload } from '@pitwall/shared';
 
 const host = typeof window !== 'undefined' && window.location?.hostname ? window.location.hostname : 'localhost';
 export const API_URL: string = (import.meta.env?.VITE_API_URL as string | undefined) ?? `http://${host}:8787/api/v1`;
@@ -59,7 +59,7 @@ export const api = {
   run: (id: string) => req<RunInfo>('GET', `/runs/${id}`),
   control: (id: string, action: 'start' | 'pause' | 'step') => req<RunInfo>('POST', `/runs/${id}/control`, { action }),
   speed: (id: string, speed: number) => req<RunInfo>('PUT', `/runs/${id}/speed`, { speed }),
-  inject: (id: string, kind: InjectionKind, params?: { segmentId?: string }) => req<{ appliesAtStep: number }>('POST', `/runs/${id}/inject`, { kind, ...(params ? { params } : {}) }),
+  inject: (id: string, kind: InjectionKind, params?: InjectionParams) => req<{ appliesAtStep: number }>('POST', `/runs/${id}/inject`, { kind, ...(params ? { params } : {}) }),
   risk: (id: string, b: { lambdaRisk?: number; cvarAlpha?: number; pFailLimit?: number }) => req<RunInfo>('PUT', `/runs/${id}/risk`, b),
   planner: (id: string, b: Record<string, unknown>) => req<RunInfo>('PUT', `/runs/${id}/planner`, b),
   fork: (id: string, f: ForkRequest) => req<{ jobId: string }>('POST', `/runs/${id}/fork`, f),

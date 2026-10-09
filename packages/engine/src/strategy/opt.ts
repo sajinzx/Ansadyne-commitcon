@@ -9,6 +9,7 @@ import { b1Decide, defaultB1Options, projectNextStop } from './b1';
 import type { RivalCautionStats } from '../planner/rollout';
 import { nominalBurn } from '../vehicle/fuel';
 import { refuelRequest } from '../sim/pit';
+import { driverStatus } from './drivers';
 
 interface OptState {
   plan: Plan | null;
@@ -74,7 +75,9 @@ export class OptStrategy implements Strategy {
 
     let decision: StrategyOutput['decision'];
     let trigger: string | undefined;
-    if (obs.ego.running) {
+    // the in-lap observation still shows the pre-service fuel and tyres (the service lands with the out-lap), and a
+    // stop on the out-lap is illegal anyway: planning on it sees a car about to run dry and buys a wasted stop
+    if (obs.ego.running && !obs.ego.lastLapFlags.inLap) {
       const tr = evaluateTriggers(s.triggers, obs, belief, s.plan, model);
       if (tr.primary && belief) {
         trigger = tr.primary;
@@ -129,21 +132,46 @@ export class OptStrategy implements Strategy {
     const mode = p.mode && lapNext <= p.mode.untilLap ? p.mode.mode : 'normal';
     // physically required compound swap (the same rule the rollouts assume between explicit stops)
     if (obs.ego.running && !obs.ego.lastLapFlags.inLap && !(obs.flag === 'caution' && !obs.pitOpen)) {
-      const swapTo = obs.ego.compound === 'dry' && obs.wetness_est > 0.5 ? 'wet' : obs.ego.compound === 'wet' && obs.wetness_est < 0.1 ? 'dry' : null;
+      // the same compound thresholds as B1 (wet-in at wetIn; slicks back once the track is below wetOut): the
+      // planner is there to time stops better, not to gamble on slicks in the wet
+      const th = model.cfg.planner.b1;
+      const swapTo = obs.ego.compound === 'dry' && obs.wetness_est >= th.wetIn ? 'wet' : obs.ego.compound === 'wet' && obs.wetness_est <= th.wetOut * 0.67 ? 'dry' : null;
       if (swapTo && obs.ego.setsLeft[swapTo] > 0) {
         if (p.stops[0] && p.stops[0].lap <= lapNext + 1) p.stops.shift();
         p.mode = null;
         return pitAction(model, obs, belief?.fuel.mean ?? obs.ego.fuelGauge_kg, swapTo, 'normal');
       }
     }
+    // the last safe lap for the driver change (same rule as B1): a missed minimum drive time costs the result
+    if (obs.ego.running && !obs.ego.lastLapFlags.inLap && !(obs.flag === 'caution' && !obs.pitOpen) && driverStatus(obs, model).due) {
+      if (p.stops[0] && p.stops[0].lap <= lapNext + 2) p.stops.shift();
+      p.mode = null;
+      return pitAction(model, obs, belief?.fuel.mean ?? obs.ego.fuelGauge_kg, availableTyres(obs, compoundFor(obs.wetness_est)) === obs.ego.compound && obs.ego.tyreAgeLaps < 10 ? 'none' : availableTyres(obs, compoundFor(obs.wetness_est)), 'normal');
+    }
     const stop = p.stops[0];
     if (!stop || stop.lap !== lapNext || !obs.ego.running) return stayAction(mode);
+    // one stop instead of two: under a caution, when the driver change is still to come and the current driver is
+    // a lap or two short of their minimum, hold the stop until the change can be made in the same visit
+    const drv = driverStatus(obs, model);
+    const tLapNow = obs.ego.lastLap_s > 60 && obs.ego.lastLap_s < 400 ? obs.ego.lastLap_s : model.lapRef;
+    if (obs.flag === 'caution' && drv.need_s > 0 && drv.ownNeed_s > 0 && drv.ownNeed_s <= 3 * tLapNow && !obs.ego.forcedPending && !drv.due) {
+      const q = nominalBurn(model.cfg.car, 'normal') * (belief?.Zeff.mean ?? 1);
+      if ((belief?.fuel.mean ?? obs.ego.fuelGauge_kg) > q * (model.cfg.car.fuel.reserveLaps + 2)) {
+        stop.lap = lapNext + 1;
+        return stayAction(mode);
+      }
+    }
+    if (belief && this.pointless(obs, belief, model, stop.tyres)) {
+      p.stops.shift();
+      return stayAction(mode);
+    }
     if (obs.ego.lastLapFlags.inLap || (obs.flag === 'caution' && !obs.pitOpen)) {
       // cannot pit on an out-lap or into a closed lane: postpone the stop by one lap
       stop.lap = lapNext + 1;
       return stayAction(mode);
     }
-    const tyres = stop.tyres === 'none' ? 'none' : availableTyres(obs, stop.tyres === compoundFor(obs.wetness_est) ? stop.tyres : compoundFor(obs.wetness_est));
+    // the compound the plan chose (a deliberate swap, e.g. wets -> slicks as the track dries, must not be overridden)
+    const tyres = stop.tyres === 'none' ? 'none' : availableTyres(obs, stop.tyres);
     const fuelEst = belief?.fuel.mean ?? obs.ego.fuelGauge_kg;
     if (stop.refuel === 'helper') {
       const a = pitAction(model, obs, fuelEst, tyres, mode);
@@ -155,6 +183,25 @@ export class OptStrategy implements Strategy {
       return a;
     }
     return { pit: true, refuel_kg: stop.refuel, tyres, driverChange: false, mode };
+  }
+
+  /**
+   * A planned stop that buys nothing: the fuel on board already reaches the flag with the reserve, and the tyres on
+   * the car stay short of the cliff (and on the right compound) until the flag. Late in a race a candidate's firm stop
+   * can outlive the reason it was chosen for; this drops it instead of paying a full stop for no gain.
+   */
+  private pointless(obs: Observation, belief: Belief, model: ModelBundle, tyres: 'none' | 'dry' | 'wet'): boolean {
+    // green-flag laps: a caution lap is slow, and counting laps left at caution pace would undercount them
+    const lapsLeft = Math.ceil(Math.max(0, obs.remaining_s) / model.lapRef) + 1;
+    const q = nominalBurn(model.cfg.car, 'normal') * belief.Zeff.mean;
+    const fuelOk = belief.fuel.mean - 2 * belief.fuel.sd >= q * (lapsLeft + model.cfg.car.fuel.reserveLaps);
+    if (!fuelOk) return false;
+    if (driverStatus(obs, model).need_s > 0) return false;
+    if (tyres === 'none') return true;
+    if (tyres !== obs.ego.compound) return false;
+    const tc = model.cfg.car.tyres[obs.ego.compound];
+    const wearAtFlag = belief.W.mean + belief.W.sd + tc.kBase_per_lap * belief.Yeff.mean * lapsLeft;
+    return wearAtFlag < (tc.Wcliff ?? 0.55);
   }
 
   getState(): unknown {

@@ -2,6 +2,7 @@
 // Every stop fills by F_after(j) = min(capacity, q̄·(K − j + reserve)) where j is the out-lap index, so fuel at
 // any lap is a function of the lap and the laps since the last stop: the DP state (k, a, s) needs no fuel bins.
 import type { Belief, ObsHistory, Observation, Plan, PlanStop } from '@pitwall/shared';
+import { driverStatus } from './drivers';
 import type { ModelBundle } from '../vehicle/model';
 import { surrogateLap } from '../vehicle/model';
 import { sCar, tyreTempNext, newTyreTemp, wearRate } from '../vehicle/tyre';
@@ -9,6 +10,7 @@ import { sTrack } from '../track/surface';
 import { expectedService, netPitLoss } from '../sim/pit';
 import { availableTyres, compoundFor, pitAction, stayAction, type Strategy, type StrategyContext, type StrategyOutput } from './strategy';
 import { refuelRequest } from '../sim/pit';
+import { trafficMoments } from '../estimator/ekf';
 
 export interface DpParams {
   K: number; // laps to plan
@@ -137,7 +139,7 @@ export function dpParams(model: ModelBundle): DpParams {
     let v = lapCache.get(key);
     if (v === undefined) {
       const S = sCar(car, { compound: 'dry', w: 0, tyreTemp: temps[a], wear: wears[a], X: 1, gripSkill: egoField.gripSkill, wetSkill: 1 }) * Strk;
-      v = surrogateLap(model, S, car.mass_dry_kg.value + Math.max(0, fuelMid), 0, 'normal', 22) * egoField.paceFactor + 0.21;
+      v = surrogateLap(model, S, car.mass_dry_kg.value + Math.max(0, fuelMid), 0, 'normal', 22) * egoField.paceFactor + trafficMoments(cfg.race).mean;
       lapCache.set(key, v);
     }
     return v;
@@ -180,9 +182,16 @@ export class B0Strategy implements Strategy {
     }
     // drop stops that are in the past (taken or refused)
     this.plan.stops = this.plan.stops.filter((s) => s.lap >= lapNext);
+    // the static plan respects the minimum drive times: when the driver change is due, its next stop comes forward
+    if (!obs.ego.lastLapFlags.inLap && obs.ego.running && !(obs.flag === 'caution' && !obs.pitOpen) && driverStatus(obs, ctx.model).due) {
+      if (this.plan.stops[0]) this.plan.stops[0].lap = lapNext;
+      else this.plan.stops.unshift({ lap: lapNext, refuel: 'helper', tyres: 'none' });
+    }
     const stop = this.plan.stops[0];
     if (stop && stop.lap === lapNext && !obs.ego.lastLapFlags.inLap) {
-      const tyres = stop.tyres === 'none' ? 'none' : availableTyres(obs, compoundFor(obs.wetness_est));
+      // a what-if fork honours the compound the user chose; the DP plan adapts it to the conditions
+      const tyres =
+        stop.tyres === 'none' ? 'none' : this.plan.source === 'what-if' ? availableTyres(obs, stop.tyres) : availableTyres(obs, compoundFor(obs.wetness_est));
       const refuel =
         stop.refuel === 'helper'
           ? refuelRequest(ctx.model, obs.ego.fuelGauge_kg, ctx.model.cfg.car.fuel.qBase_kg_per_lap, obs.raceTime_s + ctx.model.lapRef, ctx.model.lapRef)

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { SegmentOverride, TrackGeometryPayload } from '@pitwall/shared';
+import type { ColourBy } from '../../store/trackStore';
 import { scaleLinear } from 'd3-scale';
 import { line } from 'd3-shape';
 import { Panel } from '../layout/Panel';
@@ -8,9 +9,11 @@ import { api, type TrackPreview } from '../../api/client';
 import { TrackMapper } from '../../lib/geometry';
 import { useRace } from '../../store/raceStore';
 import { inject } from '../../store/session';
+import { useUi } from '../../store/uiStore';
+import { raceOverrides, useTrack } from '../../store/trackStore';
+import { useShownLaps } from '../race/useDisplayed';
+import { egoRecord } from '../../lib/derive';
 import { fmt } from '../../lib/format';
-
-type ColourBy = 'grip' | 'type' | 'wetness';
 const TYPE_COLOR: Record<string, string> = { straight: '#5BB8FF', banked: '#D7FF3F', corner: '#FF8C42', chicane: '#FF5A5A', bus_stop: '#FF5A5A', kink: '#B48CFF' };
 
 function gripColor(g: number): string {
@@ -23,17 +26,23 @@ function gripColor(g: number): string {
 
 export function TrackView() {
   const [track, setTrack] = useState<TrackGeometryPayload | null>(useRace.getState().init?.track ?? null);
-  const [wetness, setWetness] = useState(0);
-  const [temp, setTemp] = useState(30);
-  const [rubber, setRubber] = useState(0.02);
-  const [overrides, setOverrides] = useState<SegmentOverride[]>([]);
+  const t = useTrack();
+  const { wetness, temp, rubber, overrides, segId, colourBy, marker, wetAll, tempOffset, applied } = t;
+  const setWetness = (v: number) => t.set({ wetness: v });
+  const setTemp = (v: number) => t.set({ temp: v });
+  const setRubber = (v: number) => t.set({ rubber: v });
+  const setSegId = (v: string) => t.set({ segId: v });
+  const setMarker = (v: number) => t.set({ marker: v });
   const [preview, setPreview] = useState<TrackPreview | null>(null);
-  const [segId, setSegId] = useState('S05');
-  const [colourBy, setColourBy] = useState<ColourBy>('grip');
-  const [marker, setMarker] = useState(1500);
-  const [applyLive, setApplyLive] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const runState = useRace((s) => s.state);
+  const live = runState !== 'none' && runState !== 'finished';
+  const world = useUi((s) => s.world);
+  const shown = useShownLaps(world);
+  const ego = useRace((s) => s.init?.ego ?? 12);
+  const lastLap = shown[shown.length - 1];
+  const env = lastLap?.env;
+  const nowLap = lastLap ? (egoRecord(lastLap, ego)?.lap ?? 0) : 0;
 
   useEffect(() => {
     if (!track) api.track().then(setTrack).catch((e) => setErr(String(e)));
@@ -41,7 +50,7 @@ export function TrackView() {
   useEffect(() => {
     const h = setTimeout(() => {
       api
-        .preview({ wetness, trackTemp_C: temp, rubber, overrides })
+        .preview({ wetness, trackTemp_C: temp + tempOffset, rubber, overrides: track ? raceOverrides(track.segments.map((g) => g.id), overrides, wetAll) : overrides })
         .then((p) => {
           setPreview(p);
           setErr(null);
@@ -49,7 +58,7 @@ export function TrackView() {
         .catch((e) => setErr(e instanceof Error ? e.message : String(e)));
     }, 150);
     return () => clearTimeout(h);
-  }, [wetness, temp, rubber, overrides]);
+  }, [wetness, temp, rubber, overrides, wetAll, tempOffset, track]);
   const map = useMemo(() => (track ? new TrackMapper(track) : null), [track]);
   if (!track || !map) return <div className="p-6 mono text-muted">{err ?? 'Loading track…'}</div>;
 
@@ -59,9 +68,22 @@ export function TrackView() {
   const setOv = (patch: Partial<SegmentOverride>) => {
     const next = { ...ov, ...patch };
     const clean = !next.debris && !next.wetnessOffset;
-    setOverrides([...overrides.filter((o) => o.segmentId !== segId), ...(clean ? [] : [next])]);
-    if (applyLive && patch.debris && runState !== 'none' && runState !== 'finished') void inject('debris', { segmentId: segId });
+    t.set({ overrides: [...overrides.filter((o) => o.segmentId !== segId), ...(clean ? [] : [next])] });
   };
+  // preview: the race set-up's offsets are added on top of the sliders, so the numbers show what the cars will feel
+  const previewOverrides = raceOverrides(track.segments.map((s) => s.id), overrides, wetAll);
+  const applyToRace = () => {
+    const ovs = raceOverrides(track.segments.map((s) => s.id), overrides, wetAll);
+    void inject('surface', { overrides: ovs, trackTempOffset_C: tempOffset }, `track set-up: ${ovs.length} segment(s), ${tempOffset >= 0 ? '+' : ''}${tempOffset} °C`);
+    t.set({ applied: { overrides: ovs, trackTempOffset_C: tempOffset, wetAll, atLap: nowLap } });
+  };
+  const resetRace = () => {
+    void inject('surface', { overrides: [], trackTempOffset_C: 0 }, 'track set-up reset to original');
+    t.set({ applied: null });
+  };
+  const useLive = () => env && t.set({ wetness: Number(env.wetness.toFixed(2)), temp: Math.round(env.trackTemp_C) });
+  const engineSurface = env?.surface;
+  const engineActive = !!engineSurface && (engineSurface.overrides.length > 0 || engineSurface.trackTempOffset_C !== 0);
   const colourOf = (id: string) => {
     const p = preview?.segments.find((s) => s.id === id);
     if (colourBy === 'type') return TYPE_COLOR[track.segments.find((s) => s.id === id)!.type] ?? '#888';
@@ -87,7 +109,7 @@ export function TrackView() {
           right={
             <label className="mono text-[12px] flex items-center gap-2">
               Colour by
-              <select className="field !w-36" value={colourBy} onChange={(e) => setColourBy(e.target.value as ColourBy)}>
+              <select className="field !w-36" value={colourBy} onChange={(e) => t.set({ colourBy: e.target.value as ColourBy })}>
                 <option value="grip">Effective grip</option>
                 <option value="type">Segment type</option>
                 <option value="wetness">Wetness</option>
@@ -125,7 +147,7 @@ export function TrackView() {
               <circle key={s.id} cx={s.boundary[0]} cy={s.boundary[1]} r={4} fill="#fff" />
             ))}
             <path d={TrackMapper.path(track.pitLane.polyline)} fill="none" stroke="#9aa1ab" strokeDasharray="6 5" strokeWidth={2} />
-            {overrides
+            {previewOverrides
               .filter((o) => o.debris)
               .map((o) => {
                 const s = track.segments.find((g) => g.id === o.segmentId)!;
@@ -169,9 +191,6 @@ export function TrackView() {
           <label className="flex items-center gap-2 mono text-[12px]">
             <input type="checkbox" checked={!!ov.debris} onChange={(e) => setOv({ debris: e.target.checked })} /> Debris on {segId}
           </label>
-          <label className="flex items-center gap-2 mono text-[12px]" title="sends debris as an injection to the active run">
-            <input type="checkbox" checked={applyLive} onChange={(e) => setApplyLive(e.target.checked)} /> Apply to running race
-          </label>
           <div className="grid grid-cols-3 gap-2 items-end">
             <div>
               <div className="panel-title">Standing water</div>
@@ -189,6 +208,53 @@ export function TrackView() {
             </div>
           </div>
           {err && <div className="text-bad mono text-[11px]">{err}</div>}
+        </Panel>
+        <Panel
+          title="Race set-up · stays until you reset"
+          right={
+            engineActive ? (
+              <span className="mono text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--opt)', color: '#0e1013' }} data-testid="surface-active">
+                ACTIVE IN RACE
+              </span>
+            ) : applied ? (
+              <span className="mono text-[11px]" style={{ color: 'var(--caution)' }} title="the engine runs ahead of the display clock; the set-up shows once the display reaches the lap it was applied on">
+                SENT · reaches the display shortly
+              </span>
+            ) : (
+              <span className="mono text-[11px] text-muted">original track</span>
+            )
+          }
+        >
+          <p className="text-[12px] text-muted">
+            Segment wetness offsets and debris (above) plus these two offsets are sent to the race and stay in force in all three worlds, through rain and cautions, until you press reset or apply something else.
+          </p>
+          <Slider label="Wetness offset on every segment" value={wetAll} min={-0.5} max={0.5} step={0.05} onChange={(v) => t.set({ wetAll: v })} />
+          <Slider label="Track temperature offset °C" value={tempOffset} min={-15} max={15} step={1} onChange={(v) => t.set({ tempOffset: v })} />
+          <div className="flex gap-2 flex-wrap">
+            <button className="btn btn-run" disabled={!live} onClick={applyToRace} data-testid="apply-surface">
+              Apply to race
+            </button>
+            <button className="btn" disabled={!live || (!engineActive && !applied)} onClick={resetRace}>
+              Reset to original
+            </button>
+            <button className="btn" onClick={() => t.resetDraft()}>
+              Clear draft
+            </button>
+            <button className="btn" disabled={!env} onClick={useLive} title="copy the race's current wetness and track temperature into the preview sliders">
+              Preview live conditions
+            </button>
+          </div>
+          {!live && <div className="mono text-[11px] text-muted">Start a race to apply a set-up.</div>}
+          {engineSurface && engineActive && (
+            <div className="mono text-[11.5px] flex flex-col gap-0.5">
+              <span>
+                In force{applied ? ` since lap ${applied.atLap}` : ''}: {engineSurface.overrides.filter((o) => o.wetnessOffset).length} segment(s) wetter/drier · debris{' '}
+                {engineSurface.overrides.filter((o) => o.debris).map((o) => o.segmentId).join(', ') || 'none'} · temp {engineSurface.trackTempOffset_C >= 0 ? '+' : ''}
+                {engineSurface.trackTempOffset_C} °C
+              </span>
+              <span className="text-muted">live race: wetness {env!.wetness.toFixed(2)} · track {env!.trackTemp_C.toFixed(1)} °C</span>
+            </div>
+          )}
         </Panel>
         <Panel title={`Segment inspector · ${seg.id}`}>
           <select className="field !w-full !text-left" value={segId} onChange={(e) => setSegId(e.target.value)} aria-label="segment">

@@ -141,6 +141,8 @@ export interface CarConfig {
       fTFloor: number;
     };
     puncture: { h0_per_lap: number; h1: number; limpLoss_s: number };
+    /** sd of the crew's tread-depth measurement of a removed set (fraction of full wear) */
+    treadGaugeSigma?: number;
     provenance: Provenance;
   };
   reliability: {
@@ -174,6 +176,7 @@ export interface RaceConfig {
     minPitService_s: Param;
     tyreSets: { dryPerHour: number; dryBase: number; wetPerHour: number; wetBase: number; provenance: Provenance };
     noPitOnOutLap: Param<boolean>;
+    drivers: DriverRules;
   };
   caution: {
     background_per_lap: number;
@@ -305,8 +308,38 @@ export interface Action {
   pit: boolean;
   refuel_kg: number;
   tyres: 'none' | Compound;
-  driverChange: false;
+  /** swap drivers at this stop (the crew's driver policy fills it when a strategy leaves it false) */
+  driverChange: boolean;
+  /** index of the incoming driver when driverChange is true */
+  nextDriver?: number;
   mode: Mode;
+}
+
+export interface DriverSpec {
+  name: string;
+  /** lap-time factor relative to the car's base pace (1.007 = 0.7% slower) */
+  pace: number;
+  rating: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+}
+
+export interface DriverRules {
+  /** line-ups by race length in hours */
+  lineups: Record<string, DriverSpec[]>;
+  /** minimum total drive time per driver by race length in hours (s) */
+  minDrive_s: Record<string, number>;
+  /** no driver may drive more than this continuously (s) */
+  maxContinuous_s: number;
+  provenance: Provenance;
+  note?: string;
+}
+
+export interface DriverState {
+  current: number;
+  lineup: DriverSpec[];
+  total_s: number[];
+  continuous_s: number;
+  minDrive_s: number;
+  maxContinuous_s: number;
 }
 
 export interface PlanStop {
@@ -338,11 +371,23 @@ export interface SegmentOverride {
   untilTick?: number;
 }
 
-export type InjectionKind = 'caution' | 'rain' | 'fuelSpike' | 'debris';
+export type InjectionKind = 'caution' | 'rain' | 'fuelSpike' | 'debris' | 'weather' | 'weatherMatrix' | 'surface';
+export interface InjectionParams {
+  /** debris: the segment */
+  segmentId?: string;
+  /** weather: force this Markov state for `ticks` ticks (default 15), then the chain resumes */
+  regime?: Regime;
+  ticks?: number;
+  /** weatherMatrix: new per-tick transition matrix from the next tick on */
+  matrix?: number[][];
+  /** surface: the persistent track set-up (replaces the previous one; [] and 0 = back to original) */
+  overrides?: SegmentOverride[];
+  trackTempOffset_C?: number;
+}
 export interface Injection {
   kind: InjectionKind;
   step: number;
-  params?: { segmentId?: string };
+  params?: InjectionParams;
 }
 
 // ---------------------------------------------------------------- observation, belief
@@ -378,6 +423,9 @@ export interface Observation {
     gapBehind_s: number;
     setsLeft: { dry: number; wet: number };
     lastRefuelApplied_kg: number | null;
+    /** tread-depth measurement of the set removed at the stop that ended last lap (out-lap only) */
+    treadMeasured?: { wear: number; laps: number; compound: Compound } | null;
+    drivers?: DriverState;
     lastLapFlags: { inLap: boolean; outLap: boolean; caution: boolean; incident: boolean };
     fuelUsedSinceStop_kg: number;
     running: boolean;
@@ -435,6 +483,12 @@ export interface EnvPublic {
   rubber: number;
   rainProb: { in10: number; in20: number; in40: number };
   night: boolean;
+  /** regime distribution (dry, damp, wet) after 5, 10 and 20 ticks from the current state */
+  forecast?: { in5: number[]; in10: number[]; in20: number[] };
+  /** the transition matrix in force */
+  matrix?: number[][];
+  /** persistent track set-up applied by the user (Track tab) */
+  surface?: { overrides: SegmentOverride[]; trackTempOffset_C: number };
 }
 
 export interface CautionPublic {
@@ -486,6 +540,8 @@ export interface CarLapRecord {
   classified: boolean;
   dnf?: { cause: DnfCause; atTime_s: number; atLapDist_m: number };
   mode: Mode;
+  /** who drove this lap */
+  driver?: string;
   ego?: { belief: Belief; truth?: EgoTruth; plan?: Plan | null };
 }
 
@@ -505,6 +561,8 @@ export type RaceEvent =
   | { type: 'dnf'; car: number; cause: DnfCause; step: number; world: StrategyId }
   | { type: 'injected'; injection: Injection }
   | { type: 'trigger'; world: StrategyId; trigger: string; step: number }
+  | { type: 'penalty'; car: number; step: number; reason: string; world: StrategyId }
+  | { type: 'driver_change'; car: number; step: number; from: string; to: string; world: StrategyId }
   | {
       type: 'warning';
       code: 'surrogate_out_of_range' | 'planner_over_budget' | 'gated_update' | 'refuel_clamped';
@@ -737,7 +795,21 @@ export type StreamType =
   | 'warning'
   | 'state'
   | 'run_end'
-  | 'heartbeat';
+  | 'heartbeat'
+  | 'radio';
+
+/** Live message from the engine to the team, with the evidence behind it. */
+export interface RadioMessage {
+  world: StrategyId;
+  step: number;
+  lap: number;
+  raceTime_s: number;
+  kind: 'pit' | 'decision' | 'weather' | 'caution' | 'driver' | 'tyres' | 'fuel' | 'penalty' | 'incident';
+  priority: 'info' | 'action' | 'alert';
+  title: string;
+  text: string;
+  proof: string[];
+}
 
 export interface StreamMessage<T = unknown> {
   v: 1;

@@ -13,3 +13,4 @@ test-results/
 apps/frontend/test-results/
 apps/frontend/playwright-report/
 apps/frontend/dist/
+.bench-tmp

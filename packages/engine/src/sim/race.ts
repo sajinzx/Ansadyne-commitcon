@@ -6,11 +6,13 @@ import type {
   Decision,
   Injection,
   InjectionKind,
+  InjectionParams,
   LapEvent,
   ObsHistory,
   Observation,
   Plan,
   RaceEvent,
+  RadioMessage,
   RunConfig,
   SegmentOverride,
   StrategyId,
@@ -19,12 +21,14 @@ import { STRATEGIES } from '@pitwall/shared';
 import { assembleModel, buildModel, type ModelBundle } from '../vehicle/model';
 import { Surrogate } from '../vehicle/surrogate';
 import { predraw, predrawSizes, type Predraw } from '../rng/predraw';
-import { EnvTimeline } from '../world/weather';
+import { EnvTimeline, type EnvState } from '../world/weather';
+import { buildRadio } from './radio';
 import { ClipCounter } from '../stochastic/ou';
 import { initWorld, type WorldTruth } from './world';
 import { stepWorld, cautionAt, laneOpenAt } from './step';
 import { observe } from './observer';
 import { makeRivalPolicy, type RivalPolicy } from '../strategy/rivals';
+import { applyDriverPolicy } from '../strategy/drivers';
 import type { Strategy, StrategyOutput } from '../strategy/strategy';
 import { applyFamily, type FamilyEffects } from '../bench/families';
 import type { OracleTruth } from '../estimator/oracle';
@@ -56,6 +60,8 @@ export interface RaceOptions {
 
 export interface StepOutput {
   step: number;
+  /** live team-radio messages about our car, per world */
+  radio: RadioMessage[];
   laps: LapEvent[];
   decisions: Decision[];
   triggers: { world: StrategyId; trigger: string }[];
@@ -94,6 +100,8 @@ export class Race {
   private forcedCautionPerWorld: (number | null)[] = [null, null, null];
   private lastObs: (Observation | null)[] = [null, null, null];
   private plans: (Plan | null)[] = [null, null, null];
+  private radioEnv: (EnvState | null)[] = [null, null, null];
+  private radioRegimes: string[][] = [[], [], []];
 
   constructor(readonly opts: RaceOptions) {
     const { run, configs } = opts;
@@ -141,7 +149,7 @@ export class Race {
   }
 
   /** Queue an injection; applied at the next uncomputed step, identically in all worlds. */
-  inject(kind: InjectionKind, params?: { segmentId?: string }): Injection {
+  inject(kind: InjectionKind, params?: InjectionParams): Injection {
     const inj: Injection = { kind, step: this.k, params };
     this.pendingInjections.push(inj);
     return inj;
@@ -168,6 +176,23 @@ export class Race {
         case 'rain':
           this.env.force(tick, 2, 15);
           break;
+        case 'weather': {
+          const idx = ['dry', 'damp', 'wet'].indexOf(inj.params?.regime ?? 'wet');
+          const n = inj.params?.ticks ?? 15;
+          // a forced state overrides any earlier forcing over its window
+          for (let j = tick; j < tick + n; j++) this.env.forcing.forced.delete(j);
+          this.env.force(tick, Math.max(0, idx), n);
+          break;
+        }
+        case 'weatherMatrix':
+          if (inj.params?.matrix) {
+            this.env.setMatrix(inj.params.matrix, tick);
+            this.model.weatherMatrix = inj.params.matrix.map((r) => [...r]);
+          }
+          break;
+        case 'surface':
+          this.setSurface(inj.params?.overrides ?? [], inj.params?.trackTempOffset_C ?? 0, tick);
+          break;
         case 'fuelSpike':
           for (const w of this.worlds) {
             const ego = w.cars.find((c) => c.no === this.egoNo)!;
@@ -175,16 +200,38 @@ export class Race {
           }
           break;
         case 'debris': {
+          // temporary debris (10 ticks); it never replaces the user's persistent surface set-up
           const seg = inj.params?.segmentId ?? 'S08';
-          const ovs = this.model.overrides.filter((o) => o.segmentId !== seg);
-          ovs.push({ segmentId: seg, debris: true, untilTick: tick + 10 });
-          this.setOverrides(ovs);
+          this.debris = this.debris.filter((o) => o.segmentId !== seg);
+          this.debris.push({ segmentId: seg, debris: true, untilTick: tick + 10 });
+          this.setOverrides(this.mergedOverrides());
           break;
         }
       }
     }
     this.pendingInjections = [];
     return { caution, events };
+  }
+
+  /** The user's persistent track set-up (Track tab "apply to race"): stays until replaced or reset. */
+  surface: { overrides: SegmentOverride[]; trackTempOffset_C: number } = { overrides: [], trackTempOffset_C: 0 };
+  private debris: SegmentOverride[] = [];
+
+  private mergedOverrides(): SegmentOverride[] {
+    const out = new Map<string, SegmentOverride>();
+    for (const o of this.surface.overrides) out.set(o.segmentId, { ...o, untilTick: undefined });
+    for (const d of this.debris) {
+      const cur = out.get(d.segmentId);
+      out.set(d.segmentId, cur ? { ...cur, debris: true, untilTick: d.untilTick } : { ...d });
+    }
+    return [...out.values()].map((o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as unknown as SegmentOverride);
+  }
+
+  /** Apply a persistent surface set-up from tick j0 on, identically in all worlds. */
+  setSurface(overrides: SegmentOverride[], trackTempOffset_C: number, j0: number): void {
+    this.surface = { overrides: overrides.map((o) => ({ ...o, untilTick: undefined })), trackTempOffset_C };
+    this.env.setTempOffset(trackTempOffset_C, j0);
+    this.setOverrides(this.mergedOverrides());
   }
 
   /** Replace segment overrides (rebuilds the surrogate's node part). */
@@ -202,8 +249,11 @@ export class Race {
 
   private expireOverrides(): void {
     const tick = this.env.tickAt(this.maxComputedTime());
-    const live = this.model.overrides.filter((o) => o.untilTick === undefined || o.untilTick > tick);
-    if (live.length !== this.model.overrides.length) this.setOverrides(live);
+    const live = this.debris.filter((o) => o.untilTick === undefined || o.untilTick > tick);
+    if (live.length !== this.debris.length) {
+      this.debris = live;
+      this.setOverrides(this.mergedOverrides());
+    }
   }
 
   private observation(wi: number): Observation {
@@ -215,19 +265,25 @@ export class Race {
   /** Advance every world one step. */
   step(): StepOutput {
     const k = this.k;
-    const out: StepOutput = { step: k, laps: [], decisions: [], triggers: [], events: [] };
+    const out: StepOutput = { step: k, radio: [], laps: [], decisions: [], triggers: [], events: [] };
     if (this.finished) return out;
     if (this.opts.keepSnapshots) this.takeSnapshot();
     this.expireOverrides();
     const inj = this.applyInjections();
     out.events.push(...inj.events);
 
+    // a paired family caution waits until no world is already under caution, so it starts in all of them
+    const famPostponed = this.forcedCautionStep === k && this.worlds.some((w) => !w.finished && w.caution !== null && w.caution.t_end === null);
+    if (famPostponed) this.forcedCautionStep = k + 1;
     for (let wi = 0; wi < 3; wi++) {
       const w = this.worlds[wi];
       if (w.finished) continue;
       const actions = new Map<number, import('@pitwall/shared').Action>();
       // our car
       const ego = w.cars.find((c) => c.no === this.egoNo)!;
+      let radioDecision: Decision | undefined;
+      let radioNote: string | undefined;
+      const envBefore = this.env.at(ego.lapStart_s);
       if (ego.running && !ego.classified) {
         const obs = this.lastObs[wi] ?? this.observation(wi);
         const belief = this.estimators[wi]?.belief() ?? null;
@@ -236,12 +292,15 @@ export class Race {
           masterSeed: this.opts.run.masterSeed,
           decisionIdx: 0,
         });
-        actions.set(this.egoNo, res.action);
+        actions.set(this.egoNo, applyDriverPolicy(res.action, obs, this.model));
         this.plans[wi] = res.plan ?? this.strategies[wi].currentPlan();
         if (res.decision) {
           out.decisions.push(res.decision);
           this.decisionCount++;
         }
+        radioDecision = res.decision;
+        const p = this.plans[wi];
+        radioNote = res.note ?? (p && res.action.pit ? `planned stop of the ${w.id} plan (${p.source}, committed lap ${p.committedLap})` : undefined);
         if (res.trigger) {
           out.triggers.push({ world: w.id, trigger: res.trigger });
           out.events.push({ type: 'trigger', world: w.id, trigger: res.trigger, step: k });
@@ -252,11 +311,11 @@ export class Race {
         if (car.no === this.egoNo || !car.running || car.classified) continue;
         const robs = observe(w, car, k, this.model, this.pd, this.env);
         const hist = this.rivalHistories[wi].get(car.no)!;
-        actions.set(car.no, this.rivals[wi].get(car.no)!.decide(robs, hist));
+        actions.set(car.no, applyDriverPolicy(this.rivals[wi].get(car.no)!.decide(robs, hist), robs, this.model));
         hist.last.push(robs);
         if (hist.last.length > 10) hist.last.shift();
       }
-      const forced = this.forcedCautionStep === k || this.forcedCautionPerWorld[wi] === k;
+      const forced = (this.forcedCautionStep === k && !famPostponed) || this.forcedCautionPerWorld[wi] === k;
       const res = stepWorld(w, {
         model: this.model,
         pd: this.pd,
@@ -285,6 +344,31 @@ export class Race {
         }
       }
       out.laps.push(this.lapEvent(wi, res.records, res.events));
+      // live radio about our car in this world
+      const prevEnv = this.radioEnv[wi];
+      const envNow = this.env.at(ego.lapStart_s);
+      const hist = this.radioRegimes[wi];
+      hist.push(envNow.regime);
+      if (hist.length > 8) hist.shift();
+      out.radio.push(
+        ...buildRadio({
+          world: w.id,
+          step: k,
+          model: this.model,
+          ego,
+          rec: res.records.find((r) => r.no === this.egoNo),
+          events: res.events,
+          decision: radioDecision,
+          note: radioNote,
+          obs: this.lastObs[wi],
+          belief: this.estimators[wi]?.belief() ?? null,
+          env: envNow,
+          prevEnv: prevEnv ?? envBefore,
+          rainIn20: this.env.rainProb(envNow.regimeIdx).in20,
+          regimeHistory: [...hist],
+        }),
+      );
+      this.radioEnv[wi] = envNow;
     }
     this.scheduleFamilyCautions(k);
     this.k++;
@@ -350,6 +434,9 @@ export class Race {
         rubber: e.rubber,
         rainProb: { in10: rp.in10, in20: rp.in20, in40: rp.in40 },
         night: e.night,
+        forecast: { in5: this.env.forecast(e.regimeIdx, 5), in10: this.env.forecast(e.regimeIdx, 10), in20: this.env.forecast(e.regimeIdx, 20) },
+        matrix: this.env.P.map((r) => [...r]),
+        surface: { overrides: this.surface.overrides.map((o) => ({ ...o })), trackTempOffset_C: this.surface.trackTempOffset_C },
       },
       caution: {
         active: caution,

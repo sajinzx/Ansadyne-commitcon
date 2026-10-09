@@ -40,18 +40,73 @@
       "value": true,
       "provenance": "ASSUMED",
       "note": "a car must complete one racing lap between stops"
+    },
+    "drivers": {
+      "lineups": {
+        "1": [
+          {
+            "name": "Pro",
+            "pace": 1.0,
+            "rating": "Platinum"
+          },
+          {
+            "name": "Bronze",
+            "pace": 1.007,
+            "rating": "Bronze"
+          }
+        ],
+        "3": [
+          {
+            "name": "Pro",
+            "pace": 1.0,
+            "rating": "Platinum"
+          },
+          {
+            "name": "Bronze",
+            "pace": 1.007,
+            "rating": "Bronze"
+          }
+        ],
+        "6": [
+          {
+            "name": "Pro",
+            "pace": 1.0,
+            "rating": "Platinum"
+          },
+          {
+            "name": "Silver",
+            "pace": 1.003,
+            "rating": "Silver"
+          },
+          {
+            "name": "Bronze",
+            "pace": 1.007,
+            "rating": "Bronze"
+          }
+        ]
+      },
+      "minDrive_s": {
+        "1": 1200,
+        "3": 2700,
+        "6": 2700
+      },
+      "maxContinuous_s": 14400,
+      "provenance": "UNVERIFIED",
+      "note": "45-minute minimum per driver (IMSA sprint-race rule for Silver/Bronze, GTD); 4 h maximum from the Rolex 24 rule of 4 h in any 6 h; the 1 h minimum (20 min) is scaled. Pace gaps between ratings are ASSUMED. A driver below the minimum at the flag is classified behind every compliant finisher."
     }
   },
   "caution": {
-    "background_per_lap": 0.004,
+    "background_per_lap": 0.0135,
     "wetMultiplier": 3.0,
     "nightMultiplier": 1.2,
     "durationLaps": {
-      "3": 0.2,
-      "4": 0.3,
-      "5": 0.25,
-      "6": 0.15,
-      "7": 0.1
+      "4": 0.08,
+      "5": 0.14,
+      "6": 0.18,
+      "7": 0.2,
+      "8": 0.16,
+      "9": 0.12,
+      "10": 0.12
     },
     "minGreenLapsBetween": 5,
     "paceLapFactor": 1.55,
@@ -60,7 +115,8 @@
     "raceControlDelay_s": 8,
     "pFcyGivenIncident": 0.7,
     "pFcyGivenFailure": 0.3,
-    "provenance": "UNCALIBRATED"
+    "provenance": "FITTED",
+    "note": "fitted to the 2025 Rolex 24: 14 cautions for 102 laps in 781 leader laps (1.79 per 100 laps, mean 7.3 laps); the background rate stands for the ~50 cars not simulated, incidents of the 10 simulated cars add the rest. Sources: docs/calibration.md"
   },
   "incidents": {
     "base_per_car_lap": 0.0005,
@@ -75,9 +131,10 @@
     "provenance": "UNCALIBRATED"
   },
   "traffic": {
-    "pPerLap": 0.35,
-    "meanLoss_s": 0.6,
-    "provenance": "ASSUMED"
+    "pPerLap": 0.5,
+    "meanLoss_s": 1.2,
+    "provenance": "FITTED",
+    "note": "multi-class traffic (GTP, LMP2 passing GT cars); sized so the average green GTD lap is about 1.5 s off the class best, consistent with the 2025 Rolex 24 lap count. Sources: docs/calibration.md"
   },
   "dirtyAir": {
     "gapThreshold_s": 1.0,

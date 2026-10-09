@@ -9,7 +9,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Fastify](https://img.shields.io/badge/Fastify-4-000000?style=flat-square&logo=fastify&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-97%20passing-3ED598?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-112%20passing-3ED598?style=flat-square)
 
 ![The PITWALL race dashboard during a caution](docs/images/dashboard-race.png)
 
@@ -26,7 +26,7 @@ PITWALL turns that moment into a simulator you can play with. It races a full fi
 | | Strategist | Personality | How it decides |
 |---|---|---|---|
 | 🟠 | **B0 · Static** | "The spreadsheet" | Plans every stop before the green flag (laps 30, 60, 90) using exact dynamic programming, then sticks to it. |
-| 🔵 | **B1 · Reactive** | "The old-school crew chief" | Simple rules: low on fuel → pit; caution and the tank is half used → pit; tyres old → pit; it's raining → wets. |
+| 🔵 | **B1 · Reactive** | "The old-school crew chief" | Simple rules: low on fuel → pit; caution and the tank is half used → pit; tyres old → pit; it's raining → wets; the co-driver still needs their minimum time → pit for the driver change. |
 | 🟢 | **OPT · Dynamic** | "The data nerd" | Guesses the hidden tyre wear and fuel from lap times, imagines 400 possible futures for every option, and only changes plan when the maths is clearly better. |
 
 Because all three live in the same universe-with-the-same-dice, any difference at the flag is **pure strategy**, not luck. That's the whole trick.
@@ -53,7 +53,8 @@ Open the dashboard and press **RUN**. The first run takes 2–3 seconds while it
 - crank the speed to **20×** or **60×**,
 - smash **INJECT CAUTION** and watch the field bunch up and the strategists argue,
 - hit **INJECT RAIN** and see who gambles on wets first,
-- press **FORK WHAT-IF** to replay the race with a different call ("what if we'd pitted on lap 31?").
+- press **FORK WHAT-IF** to replay the race with a different call ("what if we'd pitted on lap 31 for wets?"),
+- watch the **Team radio** box: every call comes with its proof ("BOX BOX — lap 31 — fresh DRY tyres: rain has stopped, track drying 0.12 and falling").
 
 Keyboard: `Space` run/pause · `1`–`4` speed · `S` step a lap · `C` caution · `R` rain.
 
@@ -159,9 +160,10 @@ Every candidate is tested on the **same** 400 futures, so the comparison is fair
 
 | | |
 |---|---|
-| ![Race map](docs/images/race-map.png) | **Race map.** The schematic Daytona road course with all ten cars moving in real time. Our car is the glowing lime #12; hollow rings are "ghosts" of #12 in the other two universes. The track glows amber under caution and turns blue as it gets wet. Hover any car for its gap, lap time, tyres and (for us) the estimated fuel and wear. |
+| ![Team radio](docs/images/team-radio.png) | **Team radio.** Live messages from the engine to the pit wall for car #12 in the world you're watching: *BOX BOX* with fuel, compound and service time, plus the evidence (which rule or plan, pit cost under green vs caution, fuel and wear belief, the weather trend). The light flashes on every new message; older ones expand to show their proof. |
+| ![Race map](docs/images/race-map.png) | **Race map.** The schematic Daytona road course with all ten cars moving in real time. Our car is the glowing lime #12; hollow rings are "ghosts" of #12 in the other two universes. The track glows amber under caution and turns blue as it gets wet. A dot on each car shows its tyres (white = dry slicks, blue = wets). Hover any car for its gap, lap time, compound, driver and (for us) the estimated fuel and wear. |
 | ![Decision panel](docs/images/decision.png) | **Decision.** Every time OPT thinks, you see its full working: each option's average finishing position, the P10–P90 range, the chance of a DNF and the gain against B1. The histogram compares OPT's predicted finishing positions (lime) with B1's (blue). |
-| ![Scoreboard](docs/images/scoreboard.png) | **Strategy scoreboard.** Projected finishing position for each strategist, their uncertainty range and their next planned stop. |
+| ![Scoreboard](docs/images/scoreboard.png) | **Strategy scoreboard.** Projected finishing position for each strategist, their uncertainty range, current tyres (DRY/WET badge and age), driver and next planned stop. |
 | ![Fuel and tyres](docs/images/fuel-tyres.png) | **Fuel and tyres.** What OPT *believes* (fuel gauge, burn rate, tyre wear) next to the hidden truth, marked with a lock. A great way to watch a Kalman filter learn. |
 
 ![Position versus lap chart](docs/images/position-chart.png)
@@ -172,11 +174,18 @@ Every candidate is tested on the **same** 400 futures, so the comparison is fair
 
 **Parameters** show the hidden grip, wear and burn multipliers: the belief as a line with a ±2σ band, the truth as a dashed line, plus weather, caution hazard and pit-stop cards.
 
+**Weather · Markov chain.** The three weather states (dry, damp, wet) with their live per-lap transition probabilities, the current state highlighted and a forecast for the next 5, 10 and 20 laps. You can force a state for N laps ("Rain", "Dry it up") or edit the transition matrix and apply it to the running race. It changes every world from the next lap on and never rewrites the past.
+
 ### Track tab
 
 ![Track tab](docs/images/dashboard-track.png)
 
 Paint the circuit by grip, segment type or wetness. Drag the sliders to make it rain or heat the asphalt, drop debris in the Bus Stop, and the effective grip and lap time update from the same physics the race uses.
+
+<img src="docs/images/track-setup.png" width="420" align="right" alt="Race set-up panel: apply to race, reset to original">
+
+**Race set-up that stays.** Press **Apply to race** and your segment wetness offsets, debris, an all-segment wetness offset and a track-temperature offset go into the running race, identically in all three worlds. They **stay in force**, through rain, cautions and tab switches, until you press **Reset to original** or apply something else. Short-lived debris from INJECT never wipes them. The panel shows what the engine has in force and since which lap.
+<br clear="right">
 
 ### Assumptions tab
 
@@ -204,7 +213,28 @@ Pick scenario families, a number of seeds and a split, and PITWALL races them al
 | F10 Worst timing | caution one lap after B1's first stop | the pain of the unlucky undercut |
 | F10-adv | caution right after *each* strategist's own first stop | maximum pain for everyone |
 
+Every format runs **real endurance rules**: two drivers per car (Pro plus a Bronze or Silver co-driver), a minimum drive time per driver (20 min in 1 h, 45 min in 3 h and 6 h races) and a 4-hour continuous limit. A car that misses a minimum is classified behind every compliant finisher. Rivals react too: if you undercut a car within about 3 s whose own window is open, it covers you on the next lap.
+
 Plus six experiments (GBM vs mean-reverting randomness, grip volatility, grip–wear correlation, an "oracle" OPT that is told the truth, seed-set stability, hazard scaling) and one-click sensitivity on any assumption.
+
+---
+
+## 🏆 So does the data nerd actually win?
+
+Yes, now. On 200 held-out seeds per family (1-hour races), OPT finishes ahead of the rule-based crew chief in **all
+seven** scenario families, and the result survives a Holm correction in every one:
+
+| | F1 calm | F2 early caution | F3 mid caution | F5 random | F6 rain | F7 high wear | F10 worst timing |
+|---|---|---|---|---|---|---|---|
+| B1 avg. finish | 3.36 | 3.31 | 3.15 | 3.49 | 3.55 | 3.65 | 3.38 |
+| **OPT avg. finish** | **3.02** | **2.78** | **2.81** | **3.15** | **3.26** | **3.43** | **3.25** |
+| OPT beats / ties / loses to B1 | 61/136/3 | 86/108/6 | 57/136/7 | 58/138/4 | 51/144/5 | 50/137/13 | 38/154/8 |
+
+It didn't always. The planner's maths was fine, but six plumbing bugs kept buying it pit stops it didn't need. For
+example, it planned on the in-lap while the fuel gauge still showed the pre-refuel level. It undid its own "switch to
+slicks" calls. And nobody in the race knew that each driver must drive at least 20 minutes. The team radio is what
+gave them away. The full story is in **[docs/strategy-findings.md](docs/strategy-findings.md)**, and the tables,
+including the before/after comparison on the same seeds, are in **[docs/bench/README.md](docs/bench/README.md)**.
 
 ---
 
@@ -214,7 +244,9 @@ Under the hood every piece is a real model, not a lookup of made-up lap times:
 
 - **Hidden multipliers** follow an exponential Ornstein–Uhlenbeck process: geometric Brownian motion in log space plus a pull back to normal, so they drift but don't wander off.
 - **Lap times** come from a quasi-steady-state solver on banked corners (friction circle, downforce, drag, power limit), calibrated to a 107 s reference lap and compressed into a fast lookup table.
-- **Weather** is a three-state Markov chain with an exact rain forecast.
+- **Weather** is a three-state Markov chain (dry, damp, wet) with an exact n-step forecast `π·Pⁿ`. You can edit the matrix or force a state live.
+- **Calibration** to public IMSA data: lap reference 107.2 s (2025 Rolex 24 GTD best laps were 1:47.1–1:47.2), caution frequency fitted to the 2025 race's 14 cautions over 102 laps, and durations of 4–10 laps. See [docs/calibration.md](docs/calibration.md).
+- **Tread-depth gauge:** when a set of tyres comes off, the crew measures it (σ = 0.01). The estimator uses that reading to learn the car's true wear rate.
 - **The estimator** is a pair of (extended) Kalman filters for fuel and grip/wear, with an outlier gate for traffic.
 - **B0** solves the pit plan exactly with dynamic programming; **OPT** uses Monte Carlo rollouts with common random numbers and deterministic successive halving.
 - **The benchmark** uses paired differences, bootstrap and t intervals, Wilson intervals, McNemar's test and Holm–Bonferroni correction.
@@ -268,6 +300,8 @@ flowchart LR
 | `pnpm test` | shared + engine + backend tests (Vitest) |
 | `pnpm --filter frontend test` | dashboard unit and smoke tests |
 | `pnpm --filter frontend test:e2e` | Playwright caution scenario against a running server (`PW_CHROMIUM` can point at a local Chromium) |
+| `pnpm bench --families F1,F2,F3,F5,F6,F7,F10 --seeds 200 --hours 1 --split val --jobs 2 --out docs/bench/val-1h-200.json` | headless benchmark from the command line (paired worlds, Holm-adjusted tests) |
+| `pnpm tsx packages/engine/scripts/trace.ts F2 3 1` | trace one seed: every OPT decision and every BOX BOX call (family, seed, hours) |
 | `pnpm typecheck`, `pnpm lint` | TypeScript and ESLint, including the engine's determinism and import-boundary rules |
 
 ### Same seed, same race. Always.
@@ -289,13 +323,13 @@ Every random number comes from a seeded xoshiro128** stream and is drawn before 
 - **No shared surrogate cache:** each race worker builds its own model (≈ 2.4 s), because worker threads don't share memory.
 - **Worker loading:** worker entry points are bundled once per process with esbuild, because tsx's loader isn't inherited by worker threads.
 - **Surrogate axis:** the table is stored on the effective grip axis `S_eff = S·e(w)`, with outward-only lateral demand and `V_MIN = 3 m/s`; error ≤ 0.05 s dry, ≤ 0.5% overall.
-- **Estimator:** with lap time as the only wear signal, a +20% wear-rate offset can't be pinned to ±5% within 25 laps; the test checks consistency (truth within 2σ, wear error < 0.06) instead. Wear coverage is asserted at ≥ 0.87 (measured 0.90–0.97).
-- **OPT plans:** a candidate's first stop is firm; after it OPT follows the B1 rules until the next decision, exactly as its rollouts assume. OPT keeps a compound-swap safety rule, and wetness crossings bypass the weather-trigger cooldown.
+- **Estimator:** lap time alone can't pin a +20% wear-rate offset to ±5%. The tread-depth reading taken at each tyre change can, and the test checks it once a set has been measured. Wear coverage is asserted at ≥ 0.87 (measured 0.90–0.97).
+- **OPT plans:** a candidate's first stop is firm. After it, OPT follows the B1 rules until the next decision, exactly as its rollouts assume. OPT shares B1's compound thresholds and its driver-change rule as safety rules, doesn't plan on an in-lap observation (fuel not yet refreshed), and drops a firm stop that no longer buys anything. Wetness crossings bypass the weather-trigger cooldown.
 - **Commit stability:** grip/scheduled plan changes average ≤ 1.5 per 100 laps on calm races (spec target 1).
 - **Bench smoke test** uses 1-hour races to stay fast; decision latency is excluded from the byte-identity check.
 - **Heartbeats** aren't stored in the event log; they carry the latest `seq` and are ignored for ordering.
 - `noUncheckedIndexedAccess` is off in `tsconfig.base.json`.
-- **Results so far are mixed:** OPT beat B1 clearly in a small random-caution probe but was behind on calm dry races in an 8-seed run. Tuning on the dev split is the next step, and the benchmark reports this rather than hiding it.
+- **Results:** after the fixes in [docs/strategy-findings.md](docs/strategy-findings.md), OPT beats B1 in all seven benchmarked families on held-out validation seeds. These are 1-hour races only; the 3-hour and 6-hour formats haven't been benchmarked at that scale. Driver line-ups and minimum drive times are `UNVERIFIED` approximations of the IMSA rules.
 
 ---
 

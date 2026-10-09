@@ -27,10 +27,15 @@ export interface EstimatorState {
   lap: number;
   lastObs: Observation | null;
   gatedLaps: number;
+  treadUpdates?: number;
 }
 
-export const TRAFFIC_MEAN = 0.21;
-export const TRAFFIC_VAR = 0.208;
+/** Mean and variance of the per-lap traffic loss L = Bernoulli(p) · mean · Exp(1): E = p·m, Var = 2p·m² − (p·m)². */
+export function trafficMoments(race: { traffic: { pPerLap: number; meanLoss_s: number } }): { mean: number; variance: number } {
+  const p = race.traffic.pPerLap;
+  const m = race.traffic.meanLoss_s;
+  return { mean: p * m, variance: 2 * p * m * m - (p * m) ** 2 };
+}
 
 export class Estimator {
   private s: EstimatorState;
@@ -91,7 +96,7 @@ export class Estimator {
     const lap = surrogateLap(m, Math.max(0.35, Math.min(1.25, S)), mMid, w, prev.ego.mode, prev.airTemp_C) * field.paceFactor;
     const da = m.cfg.race.dirtyAir;
     const dirty = prev.ego.gapAhead_s < da.gapThreshold_s ? da.maxLoss_s * (1 - prev.ego.gapAhead_s / da.gapThreshold_s) : 0;
-    return lap + TRAFFIC_MEAN + dirty;
+    return lap + trafficMoments(m.cfg.race).mean + dirty;
   }
 
   update(obs: Observation): Belief {
@@ -155,7 +160,7 @@ export class Estimator {
         xm[i] -= eps[i];
         H[i] = (this.h(xp, prev, obs, mMid) - this.h(xm, prev, obs, mMid)) / (2 * eps[i]);
       }
-      const R = m.cfg.race.residualSigma_s.value ** 2 + TRAFFIC_VAR;
+      const R = m.cfg.race.residualSigma_s.value ** 2 + trafficMoments(m.cfg.race).variance;
       const PHt = s.gP.map((row) => row.reduce((acc, v, j) => acc + v * H[j], 0));
       const Sv = H.reduce((acc, v, i) => acc + v * PHt[i], 0) + R;
       const innov = obs.ego.lastLap_s - hx;
@@ -170,6 +175,19 @@ export class Estimator {
         s.gP = s.gP.map((row, i) => row.map((v, j) => v - K[i] * PHt[j]));
         s.updated = true;
       }
+    }
+    // tread-depth measurement of the set just removed: a direct observation of W (old set) before the reset.
+    // Through the covariance it also corrects the wear-rate states η and b_Y, which lap times barely reveal.
+    const tread = obs.ego.treadMeasured;
+    if (tread) {
+      const Rt = (car.tyres.treadGaugeSigma ?? 0.01) ** 2;
+      const P0 = s.gP;
+      const Sv = P0[3][3] + Rt;
+      const K = P0.map((row) => row[3] / Sv);
+      const innov = tread.wear - s.gm[3];
+      s.gm = s.gm.map((v, i) => v + K[i] * innov);
+      s.gP = P0.map((row, i) => row.map((v, j) => v - K[i] * P0[3][j]));
+      s.treadUpdates = (s.treadUpdates ?? 0) + 1;
     }
     // predict to the start of the next lap
     {
