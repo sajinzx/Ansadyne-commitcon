@@ -82,12 +82,14 @@ export class EnvTimeline {
   readonly dt: number;
   readonly startHour: number;
   readonly ticks: EnvState[] = [];
-  readonly rainTable: RainProb[];
+  rainTable: RainProb[];
   readonly forcing: WeatherForcing;
+  /** matrices in force from a tick onward (live edits); the constructor's matrix applies before the first */
+  private matrixFrom: { tick: number; P: number[][] }[] = [];
 
   constructor(
     readonly pd: Predraw,
-    readonly P: number[][],
+    public P: number[][],
     lapRef: number,
     startClock: string,
     forcing: Partial<WeatherForcing> = {},
@@ -108,7 +110,7 @@ export class EnvTimeline {
     const hour = (this.startHour + t / 3600) % 24;
     const airTemp = 18 + 6 * Math.cos((2 * Math.PI * (hour - 15)) / 24);
     const sun = Math.max(0, Math.sin((Math.PI * (hour - 7)) / 12));
-    const trackTemp = airTemp + 12 * sun * (1 - 0.7 * (regimeIdx !== 0 ? 1 : 0)) - 5 * w + eta + this.forcing.trackTempOffset;
+    const trackTemp = airTemp + 12 * sun * (1 - 0.7 * (regimeIdx !== 0 ? 1 : 0)) - 5 * w + eta + this.forcing.trackTempOffset + this.tempOffsetAt(tick);
     return { tick, regime: REGIMES[regimeIdx], regimeIdx, w, trackTemp, airTemp, rubber, eta, hour, night: sun === 0 };
   }
 
@@ -122,7 +124,7 @@ export class EnvTimeline {
       const f = this.forcing.forced.get(j);
       if (f !== undefined) regimeIdx = f;
       else if (this.forcing.fixedDry) regimeIdx = 0;
-      else regimeIdx = categoricalFromU(this.P[prev.regimeIdx], this.pd.weatherU.get(j));
+      else regimeIdx = categoricalFromU(this.matrixAt(j)[prev.regimeIdx], this.pd.weatherU.get(j));
       const rain = RAIN_INTENSITY[prev.regimeIdx];
       const drying = prev.w * 0.06 * (prev.trackTemp / 30) * (rain === 0 ? 1 : 0.3);
       const w = Math.max(0, Math.min(1, prev.w + 0.12 * rain - drying));
@@ -147,6 +149,48 @@ export class EnvTimeline {
 
   rainProb(regimeIdx: number): RainProb {
     return this.rainTable[regimeIdx];
+  }
+
+  /** The transition matrix used for the step into tick j. */
+  matrixAt(j: number): number[][] {
+    let P = this.base;
+    for (const m of this.matrixFrom) if (j >= m.tick) P = m.P;
+    return P;
+  }
+
+  private get base(): number[][] {
+    return this.baseP ?? this.P;
+  }
+  private baseP: number[][] | null = null;
+
+  /** Use matrix P from tick j0 on (earlier ticks are unchanged); forecasts switch to it immediately. */
+  setMatrix(P: number[][], j0: number): void {
+    this.baseP ??= this.P.map((r) => [...r]);
+    this.matrixFrom = this.matrixFrom.filter((m) => m.tick < j0);
+    this.matrixFrom.push({ tick: j0, P: P.map((r) => [...r]) });
+    this.P = P.map((r) => [...r]);
+    this.rainTable = rainProbTable(this.P);
+    this.recomputeFrom(Math.max(1, j0));
+  }
+
+  private tempOffsets: { tick: number; offset: number }[] = [];
+
+  private tempOffsetAt(j: number): number {
+    let o = 0;
+    for (const t of this.tempOffsets ?? []) if (j >= t.tick) o = t.offset;
+    return o;
+  }
+
+  /** A user track-temperature offset from tick j0 on (persists until replaced). */
+  setTempOffset(offset: number, j0: number): void {
+    this.tempOffsets = this.tempOffsets.filter((t) => t.tick < j0);
+    this.tempOffsets.push({ tick: j0, offset });
+    this.recomputeFrom(Math.max(1, j0));
+  }
+
+  /** Regime distribution after n ticks from regime `from` under the matrix in force now. */
+  forecast(from: number, n: number): number[] {
+    return regimeDistribution(this.P, from, n);
   }
 
   /** Force `regime` for `n` ticks starting at `j0`, then let the chain resume. */

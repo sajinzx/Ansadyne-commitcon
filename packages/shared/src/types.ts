@@ -371,11 +371,23 @@ export interface SegmentOverride {
   untilTick?: number;
 }
 
-export type InjectionKind = 'caution' | 'rain' | 'fuelSpike' | 'debris';
+export type InjectionKind = 'caution' | 'rain' | 'fuelSpike' | 'debris' | 'weather' | 'weatherMatrix' | 'surface';
+export interface InjectionParams {
+  /** debris: the segment */
+  segmentId?: string;
+  /** weather: force this Markov state for `ticks` ticks (default 15), then the chain resumes */
+  regime?: Regime;
+  ticks?: number;
+  /** weatherMatrix: new per-tick transition matrix from the next tick on */
+  matrix?: number[][];
+  /** surface: the persistent track set-up (replaces the previous one; [] and 0 = back to original) */
+  overrides?: SegmentOverride[];
+  trackTempOffset_C?: number;
+}
 export interface Injection {
   kind: InjectionKind;
   step: number;
-  params?: { segmentId?: string };
+  params?: InjectionParams;
 }
 
 // ---------------------------------------------------------------- observation, belief
@@ -471,6 +483,12 @@ export interface EnvPublic {
   rubber: number;
   rainProb: { in10: number; in20: number; in40: number };
   night: boolean;
+  /** regime distribution (dry, damp, wet) after 5, 10 and 20 ticks from the current state */
+  forecast?: { in5: number[]; in10: number[]; in20: number[] };
+  /** the transition matrix in force */
+  matrix?: number[][];
+  /** persistent track set-up applied by the user (Track tab) */
+  surface?: { overrides: SegmentOverride[]; trackTempOffset_C: number };
 }
 
 export interface CautionPublic {

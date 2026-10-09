@@ -119,10 +119,25 @@ export const ControlSchema = z.object({ action: z.enum(['start', 'pause', 'step'
 export const SpeedSchema = z.object({ speed: z.union([z.literal(1), z.literal(5), z.literal(20), z.literal(60)]) }).strict();
 export const InjectSchema = z
   .object({
-    kind: z.enum(['caution', 'rain', 'fuelSpike', 'debris']),
-    params: z.object({ segmentId: z.string().optional() }).strict().optional(),
+    kind: z.enum(['caution', 'rain', 'fuelSpike', 'debris', 'weather', 'weatherMatrix', 'surface']),
+    params: z
+      .object({
+        segmentId: z.string().optional(),
+        regime: z.enum(['dry', 'damp', 'wet']).optional(),
+        ticks: z.number().int().min(1).max(200).optional(),
+        matrix: WeatherMatrixSchema.optional(),
+        overrides: z.array(z.lazy(() => SegmentOverrideSchema)).max(20).optional(),
+        trackTempOffset_C: z.number().min(-20).max(20).optional(),
+      })
+      .strict()
+      .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((b, ctx) => {
+    if (b.kind === 'weather' && !b.params?.regime) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['params', 'regime'], message: 'regime is required' });
+    if (b.kind === 'weatherMatrix' && !b.params?.matrix) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['params', 'matrix'], message: 'matrix is required' });
+    if (b.kind === 'surface' && !b.params?.overrides) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['params', 'overrides'], message: 'overrides is required ([] to reset)' });
+  });
 export const RiskSchema = z
   .object({
     lambdaRisk: z.number().min(0).max(2).optional(),

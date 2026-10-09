@@ -2,7 +2,7 @@
 // uncomputed step in all worlds, every message appended to the run's EventStore.
 import { randomUUID } from 'node:crypto';
 import type { Worker } from 'node:worker_threads';
-import type { Decision, InjectionKind, RunConfig, RunInfo, RunSummary } from '@pitwall/shared';
+import type { Decision, InjectionKind, RunConfig, RunInfo, RunSummary, InjectionParams } from '@pitwall/shared';
 import { hashString, seedLabel, stableStringify } from '@pitwall/shared';
 import { CODE_VERSION } from '@pitwall/engine';
 import { EventStore } from '../store/EventStore';
@@ -166,7 +166,7 @@ export class RunManager {
     this.post(e, { type: 'display', raceTime_s: vals.length ? Math.max(...vals) : null });
   }
 
-  inject(runId: string, kind: InjectionKind, params?: { segmentId?: string }): { appliesAtStep: number } {
+  inject(runId: string, kind: InjectionKind, params?: InjectionParams): { appliesAtStep: number } {
     const e = this.entry(runId);
     if (!e.worker || !ACTIVE.includes(e.info.state)) throw conflict(`run ${runId} is ${e.info.state}`);
     this.post(e, { type: 'inject', kind, params });

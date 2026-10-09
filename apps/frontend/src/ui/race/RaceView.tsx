@@ -9,6 +9,7 @@ import { FuelTyres } from './FuelTyres';
 import { RaceTable } from './RaceTable';
 import { ParameterCards } from './ParameterCards';
 import { AuditLog } from './AuditLog';
+import { WeatherPanel } from './WeatherPanel';
 
 export function RaceView() {
   return (
@@ -16,6 +17,7 @@ export function RaceView() {
       <div className="flex flex-col gap-3 order-2 2xl:order-1 min-w-0">
         <WorldBuilder />
         <Seeds />
+        <WeatherPanel />
         <RaceTable />
       </div>
       <div className="flex flex-col gap-3 order-1 lg:col-span-2 2xl:col-span-1 2xl:order-2 min-w-0">

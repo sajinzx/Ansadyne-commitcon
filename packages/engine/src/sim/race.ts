@@ -6,6 +6,7 @@ import type {
   Decision,
   Injection,
   InjectionKind,
+  InjectionParams,
   LapEvent,
   ObsHistory,
   Observation,
@@ -142,7 +143,7 @@ export class Race {
   }
 
   /** Queue an injection; applied at the next uncomputed step, identically in all worlds. */
-  inject(kind: InjectionKind, params?: { segmentId?: string }): Injection {
+  inject(kind: InjectionKind, params?: InjectionParams): Injection {
     const inj: Injection = { kind, step: this.k, params };
     this.pendingInjections.push(inj);
     return inj;
@@ -169,6 +170,23 @@ export class Race {
         case 'rain':
           this.env.force(tick, 2, 15);
           break;
+        case 'weather': {
+          const idx = ['dry', 'damp', 'wet'].indexOf(inj.params?.regime ?? 'wet');
+          const n = inj.params?.ticks ?? 15;
+          // a forced state overrides any earlier forcing over its window
+          for (let j = tick; j < tick + n; j++) this.env.forcing.forced.delete(j);
+          this.env.force(tick, Math.max(0, idx), n);
+          break;
+        }
+        case 'weatherMatrix':
+          if (inj.params?.matrix) {
+            this.env.setMatrix(inj.params.matrix, tick);
+            this.model.weatherMatrix = inj.params.matrix.map((r) => [...r]);
+          }
+          break;
+        case 'surface':
+          this.setSurface(inj.params?.overrides ?? [], inj.params?.trackTempOffset_C ?? 0, tick);
+          break;
         case 'fuelSpike':
           for (const w of this.worlds) {
             const ego = w.cars.find((c) => c.no === this.egoNo)!;
@@ -176,16 +194,38 @@ export class Race {
           }
           break;
         case 'debris': {
+          // temporary debris (10 ticks); it never replaces the user's persistent surface set-up
           const seg = inj.params?.segmentId ?? 'S08';
-          const ovs = this.model.overrides.filter((o) => o.segmentId !== seg);
-          ovs.push({ segmentId: seg, debris: true, untilTick: tick + 10 });
-          this.setOverrides(ovs);
+          this.debris = this.debris.filter((o) => o.segmentId !== seg);
+          this.debris.push({ segmentId: seg, debris: true, untilTick: tick + 10 });
+          this.setOverrides(this.mergedOverrides());
           break;
         }
       }
     }
     this.pendingInjections = [];
     return { caution, events };
+  }
+
+  /** The user's persistent track set-up (Track tab "apply to race"): stays until replaced or reset. */
+  surface: { overrides: SegmentOverride[]; trackTempOffset_C: number } = { overrides: [], trackTempOffset_C: 0 };
+  private debris: SegmentOverride[] = [];
+
+  private mergedOverrides(): SegmentOverride[] {
+    const out = new Map<string, SegmentOverride>();
+    for (const o of this.surface.overrides) out.set(o.segmentId, { ...o, untilTick: undefined });
+    for (const d of this.debris) {
+      const cur = out.get(d.segmentId);
+      out.set(d.segmentId, cur ? { ...cur, debris: true, untilTick: d.untilTick } : { ...d });
+    }
+    return [...out.values()].map((o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as unknown as SegmentOverride);
+  }
+
+  /** Apply a persistent surface set-up from tick j0 on, identically in all worlds. */
+  setSurface(overrides: SegmentOverride[], trackTempOffset_C: number, j0: number): void {
+    this.surface = { overrides: overrides.map((o) => ({ ...o, untilTick: undefined })), trackTempOffset_C };
+    this.env.setTempOffset(trackTempOffset_C, j0);
+    this.setOverrides(this.mergedOverrides());
   }
 
   /** Replace segment overrides (rebuilds the surrogate's node part). */
@@ -203,8 +243,11 @@ export class Race {
 
   private expireOverrides(): void {
     const tick = this.env.tickAt(this.maxComputedTime());
-    const live = this.model.overrides.filter((o) => o.untilTick === undefined || o.untilTick > tick);
-    if (live.length !== this.model.overrides.length) this.setOverrides(live);
+    const live = this.debris.filter((o) => o.untilTick === undefined || o.untilTick > tick);
+    if (live.length !== this.debris.length) {
+      this.debris = live;
+      this.setOverrides(this.mergedOverrides());
+    }
   }
 
   private observation(wi: number): Observation {
@@ -354,6 +397,9 @@ export class Race {
         rubber: e.rubber,
         rainProb: { in10: rp.in10, in20: rp.in20, in40: rp.in40 },
         night: e.night,
+        forecast: { in5: this.env.forecast(e.regimeIdx, 5), in10: this.env.forecast(e.regimeIdx, 10), in20: this.env.forecast(e.regimeIdx, 20) },
+        matrix: this.env.P.map((r) => [...r]),
+        surface: { overrides: this.surface.overrides.map((o) => ({ ...o })), trackTempOffset_C: this.surface.trackTempOffset_C },
       },
       caution: {
         active: caution,

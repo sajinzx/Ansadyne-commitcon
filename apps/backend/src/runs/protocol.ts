@@ -1,11 +1,11 @@
 // Messages between the RunManager (main thread) and a race worker.
-import type { Injection, InjectionKind, PlannerConfig, ProblemDetails, RunConfig, RunInit, RunSummary, StreamType } from '@pitwall/shared';
+import type { Injection, InjectionKind, PlannerConfig, ProblemDetails, RunConfig, RunInit, RunSummary, StreamType, InjectionParams } from '@pitwall/shared';
 
 export type ToWorker =
   | { type: 'init'; runId: string; config: RunConfig }
   | { type: 'control'; action: 'start' | 'pause' | 'step'; headless?: boolean }
   | { type: 'display'; raceTime_s: number | null }
-  | { type: 'inject'; kind: InjectionKind; params?: { segmentId?: string } }
+  | { type: 'inject'; kind: InjectionKind; params?: InjectionParams }
   | { type: 'planner'; patch: PlannerPatch };
 
 export type PlannerPatch = Partial<Omit<PlannerConfig, 'triggers'>> & { triggers?: Partial<PlannerConfig['triggers']> };

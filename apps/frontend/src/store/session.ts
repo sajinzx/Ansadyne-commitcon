@@ -1,5 +1,5 @@
 // Run session: creates runs, connects the stream, drives the display clock and sends commands.
-import type { ForkRequest, InjectionKind, RunConfig, StreamMessage } from '@pitwall/shared';
+import type { ForkRequest, InjectionKind, InjectionParams, RunConfig, StreamMessage } from '@pitwall/shared';
 import { defaultRunConfig } from '@pitwall/shared';
 import { api, ApiError } from '../api/client';
 import { openStream, type StreamHandle } from '../api/stream';
@@ -97,12 +97,12 @@ export async function stepLap(): Promise<void> {
   useUi.getState().setDisplayTime(Math.min(target, Math.max(useRace.getState().available_s, useUi.getState().displayTime)));
 }
 
-export async function inject(kind: InjectionKind, params?: { segmentId?: string }): Promise<void> {
+export async function inject(kind: InjectionKind, params?: InjectionParams, label?: string): Promise<void> {
   const id = useRace.getState().runId;
   if (!id) return;
   try {
     const r = await api.inject(id, kind, params);
-    useUi.getState().notify(`${kind} applies at step ${r.appliesAtStep + 1} in all worlds`);
+    useUi.getState().notify(`${label ?? kind} applies at lap ${r.appliesAtStep + 1} in all worlds`);
   } catch (err) {
     useUi.getState().notify(err instanceof Error ? err.message : String(err));
   }
