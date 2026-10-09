@@ -115,6 +115,7 @@
       "h1": 10.0,
       "limpLoss_s": 25
     },
+    "treadGaugeSigma": 0.01,
     "provenance": "ASSUMED"
   },
   "reliability": {

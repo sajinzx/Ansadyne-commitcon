@@ -141,6 +141,8 @@ export interface CarConfig {
       fTFloor: number;
     };
     puncture: { h0_per_lap: number; h1: number; limpLoss_s: number };
+    /** sd of the crew's tread-depth measurement of a removed set (fraction of full wear) */
+    treadGaugeSigma?: number;
     provenance: Provenance;
   };
   reliability: {
@@ -378,6 +380,8 @@ export interface Observation {
     gapBehind_s: number;
     setsLeft: { dry: number; wet: number };
     lastRefuelApplied_kg: number | null;
+    /** tread-depth measurement of the set removed at the stop that ended last lap (out-lap only) */
+    treadMeasured?: { wear: number; laps: number; compound: Compound } | null;
     lastLapFlags: { inLap: boolean; outLap: boolean; caution: boolean; incident: boolean };
     fuelUsedSinceStop_kg: number;
     running: boolean;

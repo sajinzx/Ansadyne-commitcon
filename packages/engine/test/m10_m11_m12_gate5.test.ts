@@ -117,22 +117,24 @@ describe('M11 estimator', () => {
     for (const w of race.worlds) set(w.cars.find((c) => c.no === race.egoNo)!);
   }
 
-  it('persistent wear offset: Yeff moves toward 1.2 and stays consistent with it (noise off)', () => {
-    // Documented deviation from M11 test 1 (±5% by lap 25): with lap time as the only wear signal and the
-    // filter's R = 0.15² + 0.208, a +20% wear rate changes lap time by < 0.2 s over 25 laps, which the filter
-    // largely attributes to grip; Yeff is not identifiable that fast. We assert consistency instead.
+  it('persistent wear offset: Yeff within ±5% of 1.2 once a removed set has been measured (noise off)', () => {
+    // Lap time alone barely reveals a +20% wear rate; the tread-depth measurement of the removed set at a
+    // tyre change does (M11 test 1, met through the tread gauge).
     const race = fullRace(11, { predrawTransform: zeroNoise });
     egoAfter(race, (c) => (c.coeff.bY = Math.log(1.2)));
+    let measuredAt: number | null = null;
     for (const o of race.runToEnd()) {
       const rec = o.laps.find((l) => l.world === 'B1')?.cars.find((c) => c.no === 12);
-      if (rec?.lap === 25) {
+      if (!rec) continue;
+      if (measuredAt === null && rec.pit?.phase === 'out' && rec.pit.tyres !== 'none') measuredAt = rec.lap;
+      if (measuredAt !== null && rec.lap === measuredAt + 1) {
         const b = rec.ego!.belief;
-        expect(Math.abs(b.Yeff.mean - 1.2)).toBeLessThanOrEqual(2 * b.Yeff.sd);
-        expect(Math.abs(b.W.mean - rec.ego!.truth!.wear)).toBeLessThan(0.06);
+        expect(Math.abs(b.Yeff.mean / 1.2 - 1)).toBeLessThan(0.05);
+        expect(Math.abs(b.W.mean - rec.ego!.truth!.wear)).toBeLessThan(0.02);
         return;
       }
     }
-    throw new Error('lap 25 not reached');
+    throw new Error('no tyre change happened');
   });
 
   it('burn: Zeff within ±2% of the truth within 10 laps (noise off, +5% burn offset)', () => {

@@ -42,6 +42,10 @@ prior     ξ ~ N(0, 0.030²), η ~ N(0, 0.095²), b_Y ~ N(0, 0.10²), W = 0
 
 The Jacobian `∂h/∂x` is computed by central differences on the surrogate (step 1e-4 in each state). `rubber_est` is part of the observation (B03); the wetness used is `wetness_est`.
 
+### Tread-depth measurement (v2.1)
+
+At every tyre change the crew measures the removed set: `y = W_old + v`, `sd(v) = treadGaugeSigma = 0.01` (`ASSUMED`). The observation of the out-lap carries `treadMeasured = { wear, laps, compound }`. The filter applies a linear update with `H = [0, 0, 0, 1]` **before** the prediction resets `W` for the new set, so the information flows through the covariance into `η` and `b_Y` (the wear rate), which lap times alone barely reveal.
+
 ## 11.2 When to update
 
 Skip the lap-time measurement update (predict only) on: caution laps (any `f_c > 0`), in-laps, out-laps, laps with an incident or puncture, and when the innovation is **gated**: `|z| = |t_obs − h(x̂)| / sqrt(H P Hᵀ + R) > 3` (a lapping event or traffic outlier). Log gated laps. The fuel filter updates every lap (the gauge is always read).

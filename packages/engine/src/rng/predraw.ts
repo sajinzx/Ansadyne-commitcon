@@ -67,6 +67,8 @@ export interface Predraw {
   pitLogN: CarArray;
   pitSlowU: CarArray;
   pitSlowAddU: CarArray;
+  /** tread-depth measurement noise of the removed set (per stop) */
+  treadN: CarArray;
   // stream 6 — incidents, failures, punctures
   incidentU: CarArray;
   incidentPosU: CarArray;
@@ -146,10 +148,11 @@ export function predraw(masterSeed: number, sizes: PredrawSizes): Predraw {
     { name: 'n3', kind: 'n' },
     { name: 'gaugeN', kind: 'n' },
   ]);
-  const [pitLogN, pitSlowU, pitSlowAddU] = carArrays(masterSeed, STREAM.pit, nCars, S, [
+  const [pitLogN, pitSlowU, pitSlowAddU, treadN] = carArrays(masterSeed, STREAM.pit, nCars, S, [
     { name: 'pitLogN', kind: 'n' },
     { name: 'pitSlowU', kind: 'u' },
     { name: 'pitSlowAddU', kind: 'u' },
+    { name: 'treadN', kind: 'n' },
   ]);
   const fail = carArrays(
     masterSeed,
@@ -206,6 +209,7 @@ export function predraw(masterSeed: number, sizes: PredrawSizes): Predraw {
     pitLogN,
     pitSlowU,
     pitSlowAddU,
+    treadN,
     incidentU: fail[0],
     incidentPosU: fail[1],
     incidentRetireU: fail[2],

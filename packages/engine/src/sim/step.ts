@@ -190,7 +190,15 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
     if (out) {
       car.fuel_kg += out.refuelApplied_kg;
       car.lastRefuelApplied_kg = out.refuelApplied_kg;
+      car.treadMeasured = null;
       if (out.tyres !== 'none') {
+        // the crew measures the tread of the removed set (gauge noise ~0.01 of full wear)
+        const sigma = carCfg.tyres.treadGaugeSigma ?? 0.01;
+        car.treadMeasured = {
+          wear: Math.max(0, Math.min(1, car.wear + sigma * pd.treadN.get(idx, Math.min(car.stopIndex - 1, pd.sizes.S - 1)))),
+          laps: car.tyreAgeLaps,
+          compound: car.compound,
+        };
         car.compound = out.tyres;
         car.wear = 0;
         car.tyreAgeLaps = 0;
@@ -204,6 +212,7 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
       car.fuelUsedSinceStop_kg = 0;
     } else {
       car.lastRefuelApplied_kg = null;
+      car.treadMeasured = null;
     }
 
     const c = w.caution;

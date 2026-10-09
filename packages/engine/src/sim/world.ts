@@ -46,6 +46,8 @@ export interface CarTruth {
   stints: Stint[];
   fuelUsedSinceStop_kg: number;
   lastRefuelApplied_kg: number | null;
+  /** tread-depth measurement of the set removed at the last stop (reported on the out-lap only) */
+  treadMeasured: { wear: number; laps: number; compound: Compound } | null;
   lastLap: CarLapRecord | null;
   lastLapFlags: { inLap: boolean; outLap: boolean; caution: boolean; incident: boolean };
   pittedThisCaution: boolean;
@@ -136,6 +138,7 @@ export function initWorld(id: StrategyId, model: ModelBundle, pd: Predraw, field
       stints: [{ startLap: 0, compound: race.startingCompound, startFuel_kg: race.startingFuel_kg, laps: 0 }],
       fuelUsedSinceStop_kg: 0,
       lastRefuelApplied_kg: null,
+      treadMeasured: null,
       lastLap: null,
       lastLapFlags: { inLap: false, outLap: false, caution: false, incident: false },
       pittedThisCaution: false,

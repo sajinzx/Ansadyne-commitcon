@@ -27,6 +27,7 @@ export interface EstimatorState {
   lap: number;
   lastObs: Observation | null;
   gatedLaps: number;
+  treadUpdates?: number;
 }
 
 export const TRAFFIC_MEAN = 0.21;
@@ -170,6 +171,19 @@ export class Estimator {
         s.gP = s.gP.map((row, i) => row.map((v, j) => v - K[i] * PHt[j]));
         s.updated = true;
       }
+    }
+    // tread-depth measurement of the set just removed: a direct observation of W (old set) before the reset.
+    // Through the covariance it also corrects the wear-rate states η and b_Y, which lap times barely reveal.
+    const tread = obs.ego.treadMeasured;
+    if (tread) {
+      const Rt = (car.tyres.treadGaugeSigma ?? 0.01) ** 2;
+      const P0 = s.gP;
+      const Sv = P0[3][3] + Rt;
+      const K = P0.map((row) => row[3] / Sv);
+      const innov = tread.wear - s.gm[3];
+      s.gm = s.gm.map((v, i) => v + K[i] * innov);
+      s.gP = P0.map((row, i) => row.map((v, j) => v - K[i] * P0[3][j]));
+      s.treadUpdates = (s.treadUpdates ?? 0) + 1;
     }
     // predict to the start of the next lap
     {

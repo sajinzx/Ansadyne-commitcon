@@ -48,6 +48,7 @@ export function observe(w: WorldTruth, car: CarTruth, k: number, model: ModelBun
       gapBehind_s: car.gapBehind_s,
       setsLeft: { ...car.setsLeft },
       lastRefuelApplied_kg: car.lastRefuelApplied_kg,
+      treadMeasured: car.treadMeasured ? { ...car.treadMeasured } : null,
       lastLapFlags: { ...car.lastLapFlags },
       fuelUsedSinceStop_kg: car.lapsSinceStop * nominalBurn(model.cfg.car),
       running: car.running && !car.classified,
