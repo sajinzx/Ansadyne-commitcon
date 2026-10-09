@@ -37,6 +37,8 @@ export interface ModelBundle {
   weatherMatrix: number[][];
   tyreSets: { dry: number; wet: number };
   durationHours: number;
+  /** multiplier on the persistent-coefficient spreads (family F9 uses 3) */
+  coeffSpread: number;
 }
 
 export const DEFAULT_WEATHER_MATRIX = [
@@ -106,7 +108,9 @@ export interface BuildOptions {
   surrogate?: Surrogate;
 }
 
-export function buildModel(cfg: Configs, run: RunConfig, opts: BuildOptions = {}): ModelBundle {
+/** Build the model for a run: applies the run's overrides to `base`, calibrates and builds the surrogate. */
+export function buildModel(base: Configs, run: RunConfig, opts: BuildOptions = {}): ModelBundle {
+  const cfg = effectiveConfigs(base, run);
   const geo = opts.calibration?.geo ?? new TrackGeometry(cfg.track);
   const cal = opts.calibration?.cal ?? calibrate(geo, cfg.car);
   const overrides = opts.overrides ?? [];
@@ -156,6 +160,7 @@ export function assembleModel(
     weatherMatrix: run.overrides.weatherMatrix ?? DEFAULT_WEATHER_MATRIX,
     tyreSets: tyreSetsFor(cfg, run.durationHours),
     durationHours: run.durationHours,
+    coeffSpread: 1,
   };
 }
 

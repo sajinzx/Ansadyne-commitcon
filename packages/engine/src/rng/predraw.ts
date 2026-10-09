@@ -247,3 +247,14 @@ export function hashPredraw(pd: Predraw): string {
   }
   return h.toString(16);
 }
+
+/** Test helper: remove all randomness — normals and exponentials 0, event uniforms just below 1
+ *  (nothing happens), weather uniforms 0 (the chain stays in its current regime). */
+export function zeroNoise(pd: Predraw): Predraw {
+  for (const [name, v] of Object.entries(pd)) {
+    if (!(v instanceof Vec || v instanceof CarArray)) continue;
+    const uniform = /U$/.test(name);
+    v.data.fill(uniform && name !== 'weatherU' ? 0.999999 : 0);
+  }
+  return pd;
+}
