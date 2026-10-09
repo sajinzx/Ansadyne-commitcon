@@ -10,6 +10,7 @@ import { RaceTable } from './RaceTable';
 import { ParameterCards } from './ParameterCards';
 import { AuditLog } from './AuditLog';
 import { WeatherPanel } from './WeatherPanel';
+import { RadioPanel } from './RadioPanel';
 
 export function RaceView() {
   return (
@@ -27,6 +28,7 @@ export function RaceView() {
         <ParameterCards />
       </div>
       <div className="flex flex-col gap-3 order-3 min-w-0">
+        <RadioPanel />
         <DecisionPanel />
         <Scoreboard />
         <FuelTyres />

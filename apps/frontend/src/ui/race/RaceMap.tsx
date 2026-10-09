@@ -170,6 +170,9 @@ export function RaceMap() {
                   <text textAnchor="middle" dy={4} fontSize={11} fontFamily="JetBrains Mono" fontWeight={isEgo ? 700 : 500} fill={isEgo ? '#0e1013' : '#fff'}>
                     {no}
                   </text>
+                  <circle cx={10} cy={-10} r={5} fill={pose.rec.compound === 'wet' ? 'var(--wet)' : '#E8EAED'} stroke="#0e1013" strokeWidth={1.5}>
+                    <title>{pose.rec.compound === 'wet' ? 'wet tyres' : 'dry slicks'}</title>
+                  </circle>
                 </g>
               );
             })}
@@ -181,8 +184,9 @@ export function RaceMap() {
             </div>
             <div>gap {hoverRec.lapsDown > 0 ? `+${hoverRec.lapsDown} lap` : `+${fmt(hoverRec.gapLeader_s, 1)} s`} · last {lapTimeStr(hoverRec.lapTime_s)}</div>
             <div>
-              {hoverRec.compound} · {hoverRec.tyreAgeLaps} laps · stops {hoverRec.stops}
+              <span style={{ color: hoverRec.compound === 'wet' ? 'var(--wet)' : 'var(--text)' }}>{hoverRec.compound === 'wet' ? 'WET tyres' : 'DRY slicks'}</span> · {hoverRec.tyreAgeLaps} laps · stops {hoverRec.stops}
             </div>
+            {hoverRec.driver && <div>driver: {hoverRec.driver}</div>}
             {belief ? (
               <div>
                 wear {fmt(belief.W.mean * 100, 0)}% ± {fmt(belief.W.sd * 100, 0)} · fuel {fmt(belief.fuel.mean, 1)} ± {fmt(belief.fuel.sd, 1)} kg
@@ -196,7 +200,7 @@ export function RaceMap() {
         )}
       </div>
       <div className="flex justify-between gap-3 flex-wrap text-muted text-[11px]">
-        <span>S1 lime · S2 blue · S3 orange · Schematic layout, lengths scaled to 5.73 km. Hover a car for state. Ghosts show the same car under each strategy. Rivals follow fixed synthetic policies.</span>
+        <span>Tyre dot: white = dry slicks, blue = wet tyres. S1 lime · S2 blue · S3 orange · Schematic layout, lengths scaled to 5.73 km. Hover a car for state. Ghosts show the same car under each strategy. Rivals follow fixed synthetic policies.</span>
         {retired.length > 0 && <span className="mono text-bad">Retired: {retired.map((r) => `#${r.no} (${r.dnf?.cause ?? 'dnf'})`).join(', ')}</span>}
       </div>
     </Panel>

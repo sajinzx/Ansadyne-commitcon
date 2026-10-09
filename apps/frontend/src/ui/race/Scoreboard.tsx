@@ -28,6 +28,12 @@ function Card({ w }: { w: 'B0' | 'B1' | 'OPT' }) {
       <span className="mono">
         {rec?.stops ?? 0} stops{plan ? ` of ~${(rec?.stops ?? 0) + plan.stops.length}` : ''}
       </span>
+      <span className="mono text-[12px]">
+        <span className="badge" style={{ color: rec?.compound === 'wet' ? 'var(--wet)' : 'var(--text)' }}>
+          {rec?.compound === 'wet' ? 'WET' : 'DRY'}
+        </span>{' '}
+        {rec?.tyreAgeLaps ?? 0} laps{rec?.driver ? ` · ${rec.driver}` : ''}
+      </span>
       <span className="mono text-muted">{finished ? `${summary!.byStrategy[w].laps} laps` : next ? (rec && next === rec.lap + 1 ? 'pit now' : `next stop lap ${next}`) : 'no stop planned'}</span>
     </div>
   );

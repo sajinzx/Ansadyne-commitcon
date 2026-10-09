@@ -53,7 +53,10 @@ export function RaceTable() {
                 <td>{dnf ? rec.dnf?.cause ?? '' : rec.position === 1 ? 'leader' : rec.lapsDown > 0 ? `+${rec.lapsDown} LAP` : `+${rec.gapLeader_s.toFixed(1)}`}</td>
                 <td>{inPit ? <span className="text-caution">pit</span> : lapTimeStr(rec.lapTime_s)}</td>
                 <td>
-                  {rec.compound === 'wet' ? 'W' : 'D'} {rec.tyreAgeLaps}
+                  <span className="badge" style={{ color: rec.compound === 'wet' ? 'var(--wet)' : 'var(--text)' }} title={rec.compound === 'wet' ? 'wet tyres' : 'dry slicks'}>
+                    {rec.compound === 'wet' ? 'WET' : 'DRY'}
+                  </span>{' '}
+                  {rec.tyreAgeLaps}
                 </td>
                 <td>{rec.stops}</td>
               </tr>

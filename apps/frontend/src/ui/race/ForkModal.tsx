@@ -11,16 +11,18 @@ export function ForkModal({ onClose }: { onClose(): void }) {
   const [fromStep, setFromStep] = useState(Math.max(0, step - 5));
   const [kind, setKind] = useState<'now' | 'in' | 'none'>('now');
   const [n, setN] = useState(3);
+  const [tyres, setTyres] = useState<'dry' | 'wet' | 'none'>('dry');
   const minStep = Math.max(0, step - 200);
   const submit = () => {
     const lap = kind === 'now' ? fromStep + 1 : fromStep + n;
     const plan: Plan = {
-      stops: kind === 'none' ? [] : [{ lap, refuel: 'helper', tyres: 'dry' }],
+      stops: kind === 'none' ? [] : [{ lap, refuel: 'helper', tyres }],
       mode: null,
       source: 'what-if',
       committedLap: fromStep,
     };
-    const label = kind === 'none' ? `${world} no stop from lap ${fromStep}` : `${world} pit lap ${lap}`;
+    const tyreText = tyres === 'none' ? 'fuel only' : `${tyres} tyres`;
+    const label = kind === 'none' ? `${world} no stop from lap ${fromStep}` : `${world} pit lap ${lap}, ${tyreText}`;
     void fork({ world, fromStep, forcedPlan: plan }, label);
     onClose();
   };
@@ -42,7 +44,7 @@ export function ForkModal({ onClose }: { onClose(): void }) {
         <fieldset className="flex flex-col gap-1">
           <legend className="panel-title mb-1">Plan from there</legend>
           <label>
-            <input type="radio" checked={kind === 'now'} onChange={() => setKind('now')} /> pit now (fuel + tyres)
+            <input type="radio" checked={kind === 'now'} onChange={() => setKind('now')} /> pit now
           </label>
           <label className="flex items-center gap-2">
             <input type="radio" checked={kind === 'in'} onChange={() => setKind('in')} /> pit in
@@ -52,6 +54,14 @@ export function ForkModal({ onClose }: { onClose(): void }) {
             <input type="radio" checked={kind === 'none'} onChange={() => setKind('none')} /> no stop (engine still forces fuel stops)
           </label>
         </fieldset>
+        <label className="flex justify-between items-center">
+          Tyres at that stop
+          <select className="field !w-36" value={tyres} onChange={(e) => setTyres(e.target.value as 'dry' | 'wet' | 'none')} disabled={kind === 'none'}>
+            <option value="dry">DRY slicks</option>
+            <option value="wet">WET tyres</option>
+            <option value="none">keep current (fuel only)</option>
+          </select>
+        </label>
         <p className="text-muted text-[12px] font-sans">The fork replays the same seed and injections to the chosen lap, then this world follows the plan to the flag. The result appears as a dashed line on the position chart.</p>
         <div className="flex justify-end gap-2">
           <button className="btn" onClick={onClose}>

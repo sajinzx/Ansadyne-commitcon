@@ -1,6 +1,6 @@
 // Per-world lap records, events, decisions and projections from the stream.
 import { create } from 'zustand';
-import type { CarLapRecord, Decision, ForkResult, LapEvent, Projection, RaceEvent, RunInfo, RunInit, RunState, RunSummary, StrategyId, StreamMessage } from '@pitwall/shared';
+import type { RadioMessage, CarLapRecord, Decision, ForkResult, LapEvent, Projection, RaceEvent, RunInfo, RunInit, RunState, RunSummary, StrategyId, StreamMessage } from '@pitwall/shared';
 
 export const WORLDS: StrategyId[] = ['OPT', 'B1', 'B0'];
 const emptyWorlds = <T>(f: () => T): Record<StrategyId, T> => ({ B0: f(), B1: f(), OPT: f() });
@@ -19,6 +19,7 @@ export interface RaceData {
   laps: Record<StrategyId, LapEvent[]>;
   recs: Record<StrategyId, Record<number, CarLapRecord[]>>;
   decisions: Decision[];
+  radio: RadioMessage[];
   projections: Record<StrategyId, Projection | null>;
   events: { step: number; ev: RaceEvent }[];
   warnings: { code: string; detail: string }[];
@@ -45,6 +46,7 @@ export const initialRace = (): RaceData => ({
   laps: emptyWorlds(() => []),
   recs: emptyWorlds(() => ({})),
   decisions: [],
+  radio: [],
   projections: emptyWorlds(() => null),
   events: [],
   warnings: [],
@@ -87,6 +89,9 @@ function apply(d: RaceData, m: StreamMessage): void {
     case 'decision':
       d.decisions.push(m.payload as Decision);
       break;
+    case 'radio':
+      d.radio.push(m.payload as RadioMessage);
+      break;
     case 'projection': {
       const p = m.payload as Projection;
       d.projections[p.world] = p;
@@ -122,6 +127,7 @@ export const useRace = create<RaceData & RaceActions>((set, get) => ({
       laps: { B0: [...s.laps.B0], B1: [...s.laps.B1], OPT: [...s.laps.OPT] },
       recs: { B0: { ...s.recs.B0 }, B1: { ...s.recs.B1 }, OPT: { ...s.recs.OPT } },
       decisions: [...s.decisions],
+      radio: [...s.radio],
       projections: { ...s.projections },
       events: [...s.events],
       warnings: [...s.warnings],
