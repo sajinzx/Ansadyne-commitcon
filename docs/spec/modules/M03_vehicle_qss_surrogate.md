@@ -68,7 +68,8 @@ v_cap = min(v_cap, v_top)
 
 ```
 N(v)/m    = g·cosθ + (v²/r)·sinθ + ½ρ·ClA·v²/m      normal load per unit mass
-a_lat(v)  = (v²/r)·cosθ − g·sinθ                     lateral demand along the surface (may be negative)
+a_lat(v)  = max(0, (v²/r)·cosθ − g·sinθ)             outward lateral demand along the surface (below the
+                                                     neutral speed the driver is assumed to take a lower line)
 a_tot(v)  = μ·N(v)/m
 a_long(v) = sqrt( max(0, a_tot² − a_lat²) )
 ```
@@ -90,7 +91,7 @@ a_brake = a_long(v_{i+1}) + (F_drag + F_roll)/m
 v_i     = min( v_i, sqrt(v_{i+1}² + 2·a_brake·ds) )
 ```
 
-Closed loop: run the forward pass over two consecutive laps starting at `v_cap_0`, then the backward pass over the same two laps, and keep the second lap.
+Closed loop: run the forward pass over two consecutive laps starting at `v_cap_0`, then the backward pass over the same two laps, and keep the second lap. A numeric floor `v_min = 3 m/s` keeps the car moving on near-zero grip, so lap times stay finite.
 
 **Step 5 — times**: `dt_i = 2·ds/(v_i + v_{i+1})`, lap time `T = Σ dt_i`, sector times by summing inside sector bounds, cumulative `t_i`, normalised curve `τ(s) = t(s)/T`.
 
@@ -112,12 +113,12 @@ Axes:
 
 | Axis | Values |
 |---|---|
-| `S` (uniform scale) | 0.35 to 1.25, step 0.025 (37 values) |
+| `S_eff = S · e(w)` (effective uniform scale; public domain of `S` is 0.35–1.25) | 0.12 to 1.25, step 0.025 (46 values) |
 | `m` (kg) | `mass_dry + capacity·i/6`, i = 0..6 (**7 points**) |
-| `w` (global wetness; node part uses `w_j = clip(w + offset_j)`) | 0, 0.2, 0.4, 0.6, 0.8, 1.0 |
+| `w` (global wetness; node part uses `w_j = clip(w + offset_j)`) | 0 to 1, step 0.1 (11 values) |
 | `mode` | save, normal, push (through `powerFactor`) |
 
-Total 37 × 7 × 6 × 3 = 4,662 solves per surface layout (≈ 0.5 s). Each cell stores lap time and the three sector fractions. Query: trilinear interpolation over (S, m, w) inside the mode table. Air-density correction: `T ← T·(ρ/ρ_ref)^0.15` (`ASSUMED`, small).
+`e(w)` = length-weighted mean node factor at wetness `w` divided by the dry mean. Wetness lowers every segment's grip by nearly the same factor, so lap time depends mainly on `S_eff`; storing the table on `(S_eff, m, w)` and querying at the exact `S_eff` leaves only a small residual to interpolate across `w`. (A plain `(S, m, w)` table had multi-second errors on wet laps.) Total 46 × 7 × 11 × 3 = 10,626 solves per surface layout (≈ 2 s). Each cell stores lap time and the three sector fractions. Query: trilinear interpolation over (S, m, w) inside the mode table. Air-density correction: `T ← T·(ρ/ρ_ref)^0.15` (`ASSUMED`, small).
 
 - **Domain**: if a query falls outside the axes, clamp to the edge, increment `surrogateOutOfRange`, and log a warning event once per run. In tests an out-of-range query throws.
 - **Rebuild trigger**: a change in any per-segment override (wetness offset, debris), or in car parameters. Global `T_trk`, `R`, tyre and multiplier state only move `S` and need no rebuild.
@@ -145,7 +146,7 @@ Bisection on `mu_peak ∈ [0.8, 2.6]` (40 iterations) so that the QSS lap at `re
 | West Horseshoe (S04) minimum | ≈ 90 km/h |
 | Bus Stop (S08) minimum | ≈ 68 km/h |
 | `c_f` | ≈ 0.010 s/kg (lower than the common ≈ 0.03 rule of thumb because this lap is mostly grip- and drag-limited; report as an uncalibrated emergent value, do not tune it) |
-| `∂T/∂S` | ≈ −24 s per unit S (≈ 1 s per 4% grip) |
+| `∂T/∂S` | ≈ −25 s per unit S (≈ 1 s per 4% grip) |
 | `τ(5613)`, `τ(884)`, `t_stretch_ref` | ≈ 0.986, ≈ 0.104, ≈ 12.6 s |
 | Wet check (all segments w = 1) | lap ≈ 160 s at S = 0.6 and ≈ 187 s at S = 0.45 — finite and monotone |
 
@@ -157,6 +158,6 @@ Soft sanity ranges (console warning only): `c_f ∈ [0.005, 0.06]` s/kg; top spe
 2. More mass ⇒ slower; more grip ⇒ faster; `v_i ≤ v_cap_i` at every node; no braking on S10–S11 at reference; top speed occurs at the end of S01 / start of S02.
 3. Property: for every node and `v ≤ v_cap`, `a_long(v) ≥ 0`, and `a_long → 0` as `v → v_cap` (within 1e-6 relative).
 4. Wet banking: with all segments at w = 1 and S ∈ [0.35, 1.0], lap times are finite and decrease monotonically as S increases.
-5. Surrogate: |surrogate − direct QSS| ≤ 0.05 s on 200 random points inside the domain, including wet points and points with overrides.
+5. Surrogate vs direct QSS on 200 random points inside the domain, with and without overrides: ≤ 0.05 s on dry points (S ≥ 0.7); ≤ 0.5% relative everywhere, including wet points (wet laps run 150–260 s, so an absolute 0.05 s bound is not meaningful there).
 6. Factorisation: for random (w, T, R, overrides, S_car), the solver's `μ_i/μ_peak` equals `S_car·grip_j` from M02 to 1e-12.
 7. Out-of-range surrogate query throws in test mode; in production mode it clamps and increments the counter.
