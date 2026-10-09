@@ -1,0 +1,97 @@
+{
+  "duration_s": 10800,
+  "durationOptions_h": [
+    1,
+    3,
+    6
+  ],
+  "end": "time_certain",
+  "startClock": "13:40",
+  "startingFuel_kg": 82,
+  "startingCompound": "dry",
+  "rules": {
+    "pitClosedFirstCautionLaps": {
+      "value": 2,
+      "provenance": "UNVERIFIED",
+      "note": "IMSA closes the pit lane until the field is collected"
+    },
+    "emergencyFuelWhenClosed": {
+      "value": true,
+      "splash_kg": 6,
+      "provenance": "UNVERIFIED"
+    },
+    "serviceMode": {
+      "value": "sequential",
+      "provenance": "UNVERIFIED",
+      "note": "whether tyres may be changed while refuelling"
+    },
+    "minPitService_s": {
+      "value": 0,
+      "provenance": "UNVERIFIED"
+    },
+    "tyreSets": {
+      "dryPerHour": 2,
+      "dryBase": 3,
+      "wetPerHour": 1,
+      "wetBase": 2,
+      "provenance": "ILLUSTRATIVE"
+    },
+    "noPitOnOutLap": {
+      "value": true,
+      "provenance": "ASSUMED",
+      "note": "a car must complete one racing lap between stops"
+    }
+  },
+  "caution": {
+    "background_per_lap": 0.004,
+    "wetMultiplier": 3.0,
+    "nightMultiplier": 1.2,
+    "durationLaps": {
+      "3": 0.2,
+      "4": 0.3,
+      "5": 0.25,
+      "6": 0.15,
+      "7": 0.1
+    },
+    "minGreenLapsBetween": 5,
+    "paceLapFactor": 1.55,
+    "runToQueueFactor": 1.35,
+    "queueGap_s": 0.9,
+    "raceControlDelay_s": 8,
+    "pFcyGivenIncident": 0.7,
+    "pFcyGivenFailure": 0.3,
+    "provenance": "UNCALIBRATED"
+  },
+  "incidents": {
+    "base_per_car_lap": 0.0005,
+    "wetMultiplier": 4.0,
+    "wearMultiplier": 3.0,
+    "nightMultiplier": 1.2,
+    "pRetire": 0.25,
+    "repair_s": [
+      45,
+      180
+    ],
+    "provenance": "UNCALIBRATED"
+  },
+  "traffic": {
+    "pPerLap": 0.35,
+    "meanLoss_s": 0.6,
+    "provenance": "ASSUMED"
+  },
+  "dirtyAir": {
+    "gapThreshold_s": 1.0,
+    "maxLoss_s": 0.3,
+    "provenance": "ASSUMED"
+  },
+  "overtaking": {
+    "holdGap_s": 0.35,
+    "passDelta_s": 0.6,
+    "passCost_s": 0.2,
+    "provenance": "ASSUMED"
+  },
+  "residualSigma_s": {
+    "value": 0.15,
+    "provenance": "ASSUMED"
+  }
+}

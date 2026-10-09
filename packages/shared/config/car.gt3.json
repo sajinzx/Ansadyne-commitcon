@@ -1,0 +1,141 @@
+{
+  "label": "GT3 class-level model (synthetic)",
+  "mass_dry_kg": {
+    "value": 1330,
+    "provenance": "ASSUMED",
+    "note": "car + driver"
+  },
+  "power_kW": {
+    "value": 360,
+    "provenance": "ASSUMED",
+    "low": 330,
+    "high": 400
+  },
+  "CdA_m2": {
+    "value": 1.05,
+    "provenance": "ASSUMED",
+    "low": 0.9,
+    "high": 1.2
+  },
+  "ClA_m2": {
+    "value": 2.6,
+    "provenance": "ASSUMED",
+    "low": 2.0,
+    "high": 3.2
+  },
+  "Crr": {
+    "value": 0.015,
+    "provenance": "ASSUMED"
+  },
+  "driveGripShare": {
+    "value": 0.55,
+    "provenance": "ASSUMED",
+    "note": "share of available grip usable for traction (RWD)"
+  },
+  "lapRef_s": {
+    "value": 107.0,
+    "provenance": "ILLUSTRATIVE",
+    "note": "typical GT3 race pace at the Daytona road course; calibration target only"
+  },
+  "referenceConditions": {
+    "fuel_kg": 41,
+    "trackTemp_C": 30,
+    "airTemp_C": 22,
+    "wetness": 0,
+    "rubber": 0,
+    "tyreTemp_C": 95,
+    "wear": 0,
+    "mode": "normal",
+    "compound": "dry"
+  },
+  "modes": {
+    "save": {
+      "powerFactor": 0.94,
+      "burnFactor": 0.91,
+      "wearFactor": 0.92,
+      "heatFactor": 0.95,
+      "riskFactor": 0.8
+    },
+    "normal": {
+      "powerFactor": 1.0,
+      "burnFactor": 1.0,
+      "wearFactor": 1.0,
+      "heatFactor": 1.0,
+      "riskFactor": 1.0
+    },
+    "push": {
+      "powerFactor": 1.03,
+      "burnFactor": 1.06,
+      "wearFactor": 1.15,
+      "heatFactor": 1.08,
+      "riskFactor": 1.5
+    }
+  },
+  "fuel": {
+    "capacity_kg": 82,
+    "qBase_kg_per_lap": 2.65,
+    "massExponent": 0.3,
+    "cautionBurnFactor": 0.35,
+    "gaugeNoise_kg": 0.4,
+    "reserveLaps": 1.0,
+    "provenance": "ASSUMED"
+  },
+  "tyres": {
+    "dry": {
+      "Topt_C": 95,
+      "Twidth_C": 40,
+      "kBase_per_lap": 0.011,
+      "alphaW": 0.12,
+      "betaW": 1.5,
+      "Wcliff": 0.55,
+      "Wlimit": 0.95
+    },
+    "wet": {
+      "Topt_C": 60,
+      "Twidth_C": 35,
+      "kBase_per_lap": 0.016,
+      "alphaW": 0.14,
+      "betaW": 1.5,
+      "Wcliff": 0.5,
+      "Wlimit": 0.95,
+      "dryWearPenalty": 2.0
+    },
+    "thermal": {
+      "aHeat_C": 30,
+      "bCool": 0.5,
+      "sigma_C": 1.0,
+      "newTyreOffset_C": 10,
+      "cautionHeatFactor": 0.3,
+      "wearTempCoeff": 0.02,
+      "fTPenalty": 0.08,
+      "fTFloor": 0.9
+    },
+    "puncture": {
+      "h0_per_lap": 1e-05,
+      "h1": 10.0,
+      "limpLoss_s": 25
+    },
+    "provenance": "ASSUMED"
+  },
+  "reliability": {
+    "failure_per_lap": 0.00015,
+    "pRetireOnFailure": 0.5,
+    "repair_s": [
+      120,
+      300
+    ],
+    "provenance": "UNCALIBRATED"
+  },
+  "pit": {
+    "refuelRate_kg_s": 2.0,
+    "tyreChange4_s": 16,
+    "driverChange_s": 9,
+    "serviceLogSigma": 0.09,
+    "slowStopProb": 0.03,
+    "slowStopAdd_s": [
+      3,
+      12
+    ],
+    "provenance": "ASSUMED"
+  }
+}

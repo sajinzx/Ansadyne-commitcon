@@ -1,0 +1,753 @@
+{
+  "name": "Daytona International Speedway — Road Course (schematic)",
+  "lapLength_m": {
+    "value": 5730,
+    "provenance": "REPORTED"
+  },
+  "viewBox": [
+    0,
+    0,
+    1000,
+    620
+  ],
+  "meanDryGrip": 1.0278,
+  "segments": [
+    {
+      "id": "S01",
+      "name": "Front Tri-Oval (Start/Finish)",
+      "type": "straight",
+      "start_m": 0,
+      "end_m": 974,
+      "elevation_m": {
+        "value": 2,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 18,
+        "provenance": "REPORTED"
+      },
+      "cornerRadius_m": {
+        "value": 413,
+        "provenance": "ILLUSTRATIVE",
+        "note": "tri-oval curvature; applied only in the apex window"
+      },
+      "drawnMinRadius_m": 413,
+      "dryGrip": {
+        "value": 1.04,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.62,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.55,
+          "window_m": 380
+        }
+      ],
+      "points": [
+        [
+          380,
+          545
+        ],
+        [
+          470,
+          551
+        ],
+        [
+          560,
+          556
+        ],
+        [
+          640,
+          555
+        ],
+        [
+          720,
+          548
+        ],
+        [
+          790,
+          535
+        ]
+      ]
+    },
+    {
+      "id": "S02",
+      "name": "Turn 1 Horseshoe",
+      "type": "infield_turn",
+      "start_m": 974,
+      "end_m": 1426,
+      "elevation_m": {
+        "value": 2,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": {
+        "value": 68,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 68,
+      "dryGrip": {
+        "value": 1.0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.58,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.55,
+          "window_m": 60
+        }
+      ],
+      "points": [
+        [
+          790,
+          535
+        ],
+        [
+          845,
+          522
+        ],
+        [
+          872,
+          495
+        ],
+        [
+          868,
+          463
+        ],
+        [
+          840,
+          445
+        ],
+        [
+          800,
+          445
+        ]
+      ]
+    },
+    {
+      "id": "S03",
+      "name": "Infield Straight",
+      "type": "straight",
+      "start_m": 1426,
+      "end_m": 1934,
+      "elevation_m": {
+        "value": 2,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": null,
+      "drawnMinRadius_m": 284,
+      "dryGrip": {
+        "value": 1.02,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.6,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [],
+      "points": [
+        [
+          800,
+          445
+        ],
+        [
+          700,
+          445
+        ],
+        [
+          600,
+          446
+        ]
+      ]
+    },
+    {
+      "id": "S04",
+      "name": "West Horseshoe",
+      "type": "infield_turn",
+      "start_m": 1934,
+      "end_m": 2358,
+      "elevation_m": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": {
+        "value": 44,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 44,
+      "dryGrip": {
+        "value": 1.0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.57,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.5,
+          "window_m": 50
+        }
+      ],
+      "points": [
+        [
+          600,
+          446
+        ],
+        [
+          560,
+          440
+        ],
+        [
+          538,
+          415
+        ],
+        [
+          545,
+          388
+        ],
+        [
+          575,
+          375
+        ],
+        [
+          615,
+          378
+        ]
+      ]
+    },
+    {
+      "id": "S05",
+      "name": "Infield Esses",
+      "type": "chicane",
+      "start_m": 2358,
+      "end_m": 2959,
+      "elevation_m": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": {
+        "value": 57,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 57,
+      "dryGrip": {
+        "value": 0.98,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.56,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.3,
+          "window_m": 40
+        },
+        {
+          "at": 0.7,
+          "window_m": 40
+        }
+      ],
+      "points": [
+        [
+          615,
+          378
+        ],
+        [
+          660,
+          372
+        ],
+        [
+          695,
+          355
+        ],
+        [
+          725,
+          362
+        ],
+        [
+          760,
+          345
+        ],
+        [
+          790,
+          330
+        ]
+      ]
+    },
+    {
+      "id": "S06",
+      "name": "Infield Exit",
+      "type": "straight",
+      "start_m": 2959,
+      "end_m": 3364,
+      "elevation_m": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": {
+        "value": 48,
+        "provenance": "ILLUSTRATIVE",
+        "note": "exit kink at the start of the segment"
+      },
+      "drawnMinRadius_m": 48,
+      "dryGrip": {
+        "value": 1.01,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.59,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.1,
+          "window_m": 40
+        }
+      ],
+      "points": [
+        [
+          790,
+          330
+        ],
+        [
+          820,
+          295
+        ],
+        [
+          850,
+          250
+        ],
+        [
+          880,
+          205
+        ]
+      ]
+    },
+    {
+      "id": "S07",
+      "name": "Backstretch",
+      "type": "straight",
+      "start_m": 3364,
+      "end_m": 3749,
+      "elevation_m": {
+        "value": 4,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": null,
+      "drawnMinRadius_m": 51,
+      "dryGrip": {
+        "value": 1.03,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.61,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [],
+      "points": [
+        [
+          880,
+          205
+        ],
+        [
+          862,
+          145
+        ],
+        [
+          822,
+          108
+        ],
+        [
+          762,
+          92
+        ],
+        [
+          700,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "S08",
+      "name": "Bus Stop Chicane",
+      "type": "chicane",
+      "start_m": 3749,
+      "end_m": 4048,
+      "elevation_m": {
+        "value": 4,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 0,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": {
+        "value": 27,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 27,
+      "dryGrip": {
+        "value": 0.97,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.55,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.35,
+          "window_m": 30
+        },
+        {
+          "at": 0.7,
+          "window_m": 30
+        }
+      ],
+      "points": [
+        [
+          700,
+          88
+        ],
+        [
+          672,
+          88
+        ],
+        [
+          658,
+          101
+        ],
+        [
+          636,
+          101
+        ],
+        [
+          622,
+          88
+        ],
+        [
+          592,
+          88
+        ]
+      ]
+    },
+    {
+      "id": "S09",
+      "name": "Back Straight Exit",
+      "type": "straight",
+      "start_m": 4048,
+      "end_m": 4430,
+      "elevation_m": {
+        "value": 4,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "cornerRadius_m": null,
+      "drawnMinRadius_m": 105,
+      "dryGrip": {
+        "value": 1.03,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.61,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [],
+      "points": [
+        [
+          592,
+          88
+        ],
+        [
+          505,
+          88
+        ],
+        [
+          420,
+          90
+        ]
+      ]
+    },
+    {
+      "id": "S10",
+      "name": "Banked Turn 3",
+      "type": "banked_turn",
+      "start_m": 4430,
+      "end_m": 4943,
+      "elevation_m": {
+        "value": 5,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 31,
+        "provenance": "REPORTED"
+      },
+      "cornerRadius_m": {
+        "value": 284,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 284,
+      "dryGrip": {
+        "value": 1.08,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.66,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.5,
+          "window_m": 513
+        }
+      ],
+      "points": [
+        [
+          420,
+          90
+        ],
+        [
+          330,
+          100
+        ],
+        [
+          252,
+          138
+        ],
+        [
+          198,
+          198
+        ],
+        [
+          172,
+          270
+        ]
+      ]
+    },
+    {
+      "id": "S11",
+      "name": "Banked Turn 4",
+      "type": "banked_turn",
+      "start_m": 4943,
+      "end_m": 5730,
+      "elevation_m": {
+        "value": 3,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "banking_deg": {
+        "value": 31,
+        "provenance": "REPORTED"
+      },
+      "cornerRadius_m": {
+        "value": 277,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "drawnMinRadius_m": 277,
+      "dryGrip": {
+        "value": 1.08,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "wetGrip": {
+        "value": 0.66,
+        "provenance": "ILLUSTRATIVE"
+      },
+      "apex": [
+        {
+          "at": 0.5,
+          "window_m": 787
+        }
+      ],
+      "points": [
+        [
+          172,
+          270
+        ],
+        [
+          174,
+          352
+        ],
+        [
+          203,
+          430
+        ],
+        [
+          262,
+          498
+        ],
+        [
+          325,
+          532
+        ],
+        [
+          380,
+          545
+        ]
+      ]
+    }
+  ],
+  "pitLane": {
+    "entry_s_m": 5613,
+    "exit_s_m": 884,
+    "laneLength_m": {
+      "value": 400,
+      "provenance": "ILLUSTRATIVE",
+      "note": "override; the 1,129 m schematic route would give 67.7 s transit and a ≈128 s full stop"
+    },
+    "timingLine_u_m": {
+      "value": 47,
+      "provenance": "ILLUSTRATIVE",
+      "note": "lane distance from pit entry to where the start/finish line crosses the lane"
+    },
+    "box_u_m": {
+      "value": 200,
+      "provenance": "ILLUSTRATIVE"
+    },
+    "speedLimit_kph": {
+      "value": 60,
+      "provenance": "ILLUSTRATIVE",
+      "note": "assumed to apply under green and caution"
+    },
+    "entryLoss_s": {
+      "value": 2.0,
+      "provenance": "ILLUSTRATIVE"
+    },
+    "exitLoss_s": {
+      "value": 2.5,
+      "provenance": "ILLUSTRATIVE"
+    },
+    "points": [
+      [
+        318,
+        526
+      ],
+      [
+        360,
+        529
+      ],
+      [
+        420,
+        533
+      ],
+      [
+        520,
+        538
+      ],
+      [
+        620,
+        538
+      ],
+      [
+        700,
+        533
+      ],
+      [
+        776,
+        529
+      ]
+    ]
+  },
+  "sectors": [
+    {
+      "id": "SC1",
+      "from_m": 0,
+      "to_m": 1900,
+      "provenance": "ILLUSTRATIVE"
+    },
+    {
+      "id": "SC2",
+      "from_m": 1900,
+      "to_m": 3900,
+      "provenance": "ILLUSTRATIVE"
+    },
+    {
+      "id": "SC3",
+      "from_m": 3900,
+      "to_m": 5730,
+      "provenance": "ILLUSTRATIVE"
+    }
+  ],
+  "incidentZones": [
+    {
+      "id": "IZ1",
+      "name": "Turn 1 braking / Horseshoe",
+      "from_m": 824,
+      "to_m": 1426,
+      "categories": [
+        "Braking-zone contact",
+        "Spin"
+      ],
+      "level": 2,
+      "provenance": "UNCALIBRATED"
+    },
+    {
+      "id": "IZ2",
+      "name": "Infield Esses",
+      "from_m": 2358,
+      "to_m": 2959,
+      "categories": [
+        "Contact",
+        "Track-limit abuse"
+      ],
+      "level": 1,
+      "provenance": "UNCALIBRATED"
+    },
+    {
+      "id": "IZ3",
+      "name": "Bus Stop chicane",
+      "from_m": 3649,
+      "to_m": 4048,
+      "categories": [
+        "Chicane contact",
+        "Cutting"
+      ],
+      "level": 2,
+      "provenance": "UNCALIBRATED"
+    },
+    {
+      "id": "IZ4",
+      "name": "Banked Turns 3–4",
+      "from_m": 4430,
+      "to_m": 5730,
+      "categories": [
+        "Multi-car pack incident",
+        "High-speed debris"
+      ],
+      "level": 3,
+      "provenance": "UNCALIBRATED"
+    }
+  ]
+}

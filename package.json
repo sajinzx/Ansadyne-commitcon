@@ -1,0 +1,31 @@
+{
+  "name": "pitwall",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PITWALL — Daytona race simulator and adaptive pit-strategy engine",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c green,cyan \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "build": "pnpm --filter frontend build",
+    "start": "pnpm --filter backend start",
+    "test": "vitest run --project shared --project engine --project backend",
+    "test:slow": "PITWALL_SLOW=1 vitest run --project engine",
+    "test:frontend": "pnpm --filter frontend test",
+    "typecheck": "tsc -p packages/shared && tsc -p packages/engine && tsc -p apps/backend && pnpm --filter frontend typecheck",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "concurrently": "^9.2.5",
+    "eslint": "^9.39.5",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "~5.5.4",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "~2.0.5"
+  }
+}

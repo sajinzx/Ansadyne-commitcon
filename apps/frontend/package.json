@@ -1,0 +1,42 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p . && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource/barlow-condensed": "5.0.14",
+    "@fontsource/inter": "5.0.20",
+    "@fontsource/jetbrains-mono": "5.0.21",
+    "@pitwall/shared": "workspace:*",
+    "d3-array": "3.2.4",
+    "d3-scale": "4.0.2",
+    "d3-shape": "3.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0",
+    "@testing-library/react": "16.0.1",
+    "@types/d3-array": "3.2.1",
+    "@types/d3-scale": "4.0.8",
+    "@types/d3-shape": "3.1.6",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.2",
+    "autoprefixer": "10.4.20",
+    "jsdom": "25.0.1",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.13",
+    "vite": "5.4.8",
+    "vitest": "2.0.5"
+  }
+}

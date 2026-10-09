@@ -1,0 +1,116 @@
+{
+  "ego": 12,
+  "note": "class-level synthetic models; not manufacturer data",
+  "cars": [
+    {
+      "no": 12,
+      "label": "Our car · R8 LMS GT3-type",
+      "paceFactor": 1.0,
+      "gripSkill": 1.0,
+      "wearMult": 1.0,
+      "burnMult": 1.0,
+      "wetSkill": 1.0,
+      "grid": 6,
+      "archetype": "ego"
+    },
+    {
+      "no": 5,
+      "label": "911 GT3 R-type",
+      "paceFactor": 0.996,
+      "gripSkill": 1.004,
+      "wearMult": 1.05,
+      "burnMult": 1.01,
+      "wetSkill": 1.02,
+      "grid": 1,
+      "archetype": "reactive"
+    },
+    {
+      "no": 45,
+      "label": "Huracán GT3-type",
+      "paceFactor": 0.998,
+      "gripSkill": 1.0,
+      "wearMult": 0.97,
+      "burnMult": 1.02,
+      "wetSkill": 0.98,
+      "grid": 2,
+      "archetype": "fixedStint"
+    },
+    {
+      "no": 9,
+      "label": "M4 GT3-type",
+      "paceFactor": 0.999,
+      "gripSkill": 0.998,
+      "wearMult": 1.0,
+      "burnMult": 0.98,
+      "wetSkill": 1.0,
+      "grid": 3,
+      "archetype": "aggressiveCaution"
+    },
+    {
+      "no": 20,
+      "label": "296 GT3-type",
+      "paceFactor": 1.001,
+      "gripSkill": 1.002,
+      "wearMult": 1.08,
+      "burnMult": 1.0,
+      "wetSkill": 1.01,
+      "grid": 4,
+      "archetype": "reactive"
+    },
+    {
+      "no": 8,
+      "label": "AMG GT3-type",
+      "paceFactor": 1.002,
+      "gripSkill": 0.999,
+      "wearMult": 0.95,
+      "burnMult": 1.03,
+      "wetSkill": 0.99,
+      "grid": 5,
+      "archetype": "conservative"
+    },
+    {
+      "no": 3,
+      "label": "Z06 GT3.R-type",
+      "paceFactor": 1.003,
+      "gripSkill": 1.0,
+      "wearMult": 1.02,
+      "burnMult": 0.99,
+      "wetSkill": 0.97,
+      "grid": 7,
+      "archetype": "fixedStint"
+    },
+    {
+      "no": 48,
+      "label": "Mustang GT3-type",
+      "paceFactor": 1.004,
+      "gripSkill": 0.997,
+      "wearMult": 1.0,
+      "burnMult": 1.01,
+      "wetSkill": 1.0,
+      "grid": 8,
+      "archetype": "aggressiveCaution"
+    },
+    {
+      "no": 27,
+      "label": "720S GT3-type",
+      "paceFactor": 1.005,
+      "gripSkill": 1.001,
+      "wearMult": 1.04,
+      "burnMult": 1.0,
+      "wetSkill": 1.03,
+      "grid": 9,
+      "archetype": "reactive"
+    },
+    {
+      "no": 64,
+      "label": "RC F GT3-type",
+      "paceFactor": 1.007,
+      "gripSkill": 0.998,
+      "wearMult": 0.98,
+      "burnMult": 0.97,
+      "wetSkill": 1.0,
+      "grid": 10,
+      "archetype": "conservative"
+    }
+  ]
+}

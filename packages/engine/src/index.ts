@@ -1,0 +1,27 @@
+// Public surface of the engine package (used by the backend and its workers).
+export * from './rng/rng';
+export * from './rng/predraw';
+export * from './stochastic/ou';
+export { TrackGeometry } from './track/geometry';
+export * from './vehicle/model';
+export { Surrogate } from './vehicle/surrogate';
+export { calibrate, type Calibration } from './vehicle/calibrate';
+export * from './sim/pit';
+export { Race, type RaceOptions, type StepOutput, type EstimatorLike } from './sim/race';
+export { EnvTimeline } from './world/weather';
+export * from './strategy/strategy';
+export { B0Strategy, b0Plan, solveDp, dpParams } from './strategy/b0';
+export { B1Strategy, b1Decide, defaultB1Options, projectNextStop } from './strategy/b1';
+export { OptStrategy } from './strategy/opt';
+export { Estimator } from './estimator/ekf';
+export { OracleEstimator } from './estimator/oracle';
+export { plan as runPlanner, buildCandidates, type PlanJob } from './planner/plan';
+export { evaluateTriggers, newTriggerState, TRIGGER_PRIORITY } from './planner/triggers';
+export { applyFamily, FAMILY_INFO } from './bench/families';
+export * from './bench/runner';
+export * from './bench/stats';
+export { EXPERIMENTS, runExperiment } from './bench/experiments';
+export { runSensitivity, sensitiveParams } from './bench/sensitivity';
+export * as stats from './stats';
+export * from './api';
+export { forkRun } from './fork';
