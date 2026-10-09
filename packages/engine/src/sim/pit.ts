@@ -35,9 +35,9 @@ export function serviceTime(model: ModelBundle, i: ServiceInputs): number {
 }
 
 /** Expected service time (lognormal mean factor and slow-stop mean included). */
-export function expectedService(model: ModelBundle, refuel_kg: number, tyres: 'none' | Compound): number {
+export function expectedService(model: ModelBundle, refuel_kg: number, tyres: 'none' | Compound, driverChange = false): number {
   const car = model.cfg.car;
-  const base = serviceTime(model, { refuel_kg, tyres, driverChange: false });
+  const base = serviceTime(model, { refuel_kg, tyres, driverChange });
   const meanFactor = Math.exp(0.5 * car.pit.serviceLogSigma ** 2);
   const [lo, hi] = car.pit.slowStopAdd_s;
   return base * meanFactor + car.pit.slowStopProb * (lo + hi) / 2;

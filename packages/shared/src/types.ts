@@ -176,6 +176,7 @@ export interface RaceConfig {
     minPitService_s: Param;
     tyreSets: { dryPerHour: number; dryBase: number; wetPerHour: number; wetBase: number; provenance: Provenance };
     noPitOnOutLap: Param<boolean>;
+    drivers: DriverRules;
   };
   caution: {
     background_per_lap: number;
@@ -307,8 +308,38 @@ export interface Action {
   pit: boolean;
   refuel_kg: number;
   tyres: 'none' | Compound;
-  driverChange: false;
+  /** swap drivers at this stop (the crew's driver policy fills it when a strategy leaves it false) */
+  driverChange: boolean;
+  /** index of the incoming driver when driverChange is true */
+  nextDriver?: number;
   mode: Mode;
+}
+
+export interface DriverSpec {
+  name: string;
+  /** lap-time factor relative to the car's base pace (1.007 = 0.7% slower) */
+  pace: number;
+  rating: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+}
+
+export interface DriverRules {
+  /** line-ups by race length in hours */
+  lineups: Record<string, DriverSpec[]>;
+  /** minimum total drive time per driver by race length in hours (s) */
+  minDrive_s: Record<string, number>;
+  /** no driver may drive more than this continuously (s) */
+  maxContinuous_s: number;
+  provenance: Provenance;
+  note?: string;
+}
+
+export interface DriverState {
+  current: number;
+  lineup: DriverSpec[];
+  total_s: number[];
+  continuous_s: number;
+  minDrive_s: number;
+  maxContinuous_s: number;
 }
 
 export interface PlanStop {
@@ -382,6 +413,7 @@ export interface Observation {
     lastRefuelApplied_kg: number | null;
     /** tread-depth measurement of the set removed at the stop that ended last lap (out-lap only) */
     treadMeasured?: { wear: number; laps: number; compound: Compound } | null;
+    drivers?: DriverState;
     lastLapFlags: { inLap: boolean; outLap: boolean; caution: boolean; incident: boolean };
     fuelUsedSinceStop_kg: number;
     running: boolean;
@@ -490,6 +522,8 @@ export interface CarLapRecord {
   classified: boolean;
   dnf?: { cause: DnfCause; atTime_s: number; atLapDist_m: number };
   mode: Mode;
+  /** who drove this lap */
+  driver?: string;
   ego?: { belief: Belief; truth?: EgoTruth; plan?: Plan | null };
 }
 
@@ -509,6 +543,8 @@ export type RaceEvent =
   | { type: 'dnf'; car: number; cause: DnfCause; step: number; world: StrategyId }
   | { type: 'injected'; injection: Injection }
   | { type: 'trigger'; world: StrategyId; trigger: string; step: number }
+  | { type: 'penalty'; car: number; step: number; reason: string; world: StrategyId }
+  | { type: 'driver_change'; car: number; step: number; from: string; to: string; world: StrategyId }
   | {
       type: 'warning';
       code: 'surrogate_out_of_range' | 'planner_over_budget' | 'gated_update' | 'refuel_clamped';

@@ -25,6 +25,7 @@ import { initWorld, type WorldTruth } from './world';
 import { stepWorld, cautionAt, laneOpenAt } from './step';
 import { observe } from './observer';
 import { makeRivalPolicy, type RivalPolicy } from '../strategy/rivals';
+import { applyDriverPolicy } from '../strategy/drivers';
 import type { Strategy, StrategyOutput } from '../strategy/strategy';
 import { applyFamily, type FamilyEffects } from '../bench/families';
 import type { OracleTruth } from '../estimator/oracle';
@@ -239,7 +240,7 @@ export class Race {
           masterSeed: this.opts.run.masterSeed,
           decisionIdx: 0,
         });
-        actions.set(this.egoNo, res.action);
+        actions.set(this.egoNo, applyDriverPolicy(res.action, obs, this.model));
         this.plans[wi] = res.plan ?? this.strategies[wi].currentPlan();
         if (res.decision) {
           out.decisions.push(res.decision);
@@ -255,7 +256,7 @@ export class Race {
         if (car.no === this.egoNo || !car.running || car.classified) continue;
         const robs = observe(w, car, k, this.model, this.pd, this.env);
         const hist = this.rivalHistories[wi].get(car.no)!;
-        actions.set(car.no, this.rivals[wi].get(car.no)!.decide(robs, hist));
+        actions.set(car.no, applyDriverPolicy(this.rivals[wi].get(car.no)!.decide(robs, hist), robs, this.model));
         hist.last.push(robs);
         if (hist.last.length > 10) hist.last.shift();
       }

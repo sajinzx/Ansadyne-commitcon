@@ -10,6 +10,7 @@ import { sTrack } from '../track/surface';
 import { netPitLoss, expectedService, fuelAtBox } from '../sim/pit';
 import { categoricalFromU } from '../rng/rng';
 import { stationarySd } from '../stochastic/ou';
+import { chooseDriver } from '../strategy/drivers';
 
 export interface RivalCautionStats {
   [no: number]: { pitted: number; stayed: number };
@@ -44,6 +45,8 @@ export interface RolloutWorld {
   nextIsOutLap: boolean;
   forcedPending: boolean;
   lapsToFlag: number;
+  /** our driver line-up state (pace factors, who drives, drive-time bookkeeping) */
+  drivers: { pace: number[]; current: number; total_s: number[]; continuous_s: number; minDrive_s: number; maxContinuous_s: number } | null;
   // hidden ego state per path
   F: Float64Array;
   xi: Float64Array;
@@ -201,6 +204,16 @@ export function sampleWorld(
     nextIsOutLap: obs.ego.lastLapFlags.inLap,
     forcedPending: obs.ego.forcedPending,
     lapsToFlag: Math.ceil(Math.max(0, obs.remaining_s) / tLapGuess) + 1,
+    drivers: obs.ego.drivers
+      ? {
+          pace: obs.ego.drivers.lineup.map((d) => d.pace),
+          current: obs.ego.drivers.current,
+          total_s: [...obs.ego.drivers.total_s],
+          continuous_s: obs.ego.drivers.continuous_s,
+          minDrive_s: obs.ego.drivers.minDrive_s,
+          maxContinuous_s: obs.ego.drivers.maxContinuous_s,
+        }
+      : null,
     F,
     xi,
     eta,
@@ -277,6 +290,8 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
   const order: number[] = [];
   const pitted = new Uint8Array(R + 1);
   const rivalCautionPitted = new Uint8Array(R);
+  const driveTot = new Float64Array(8);
+  const pCover = 0.6; // share of nearby rivals that cover an undercut (reactive and aggressive archetypes)
 
   for (let p = from; p < to; p++) {
     // ---- per-path initial state
@@ -314,6 +329,11 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
     }
     let lastEgoLap = m.lapRef;
     let si = 0;
+    const drv = world.drivers;
+    let driver = drv ? drv.current : 0;
+    if (drv) for (let d = 0; d < drv.total_s.length; d++) driveTot[d] = drv.total_s[d];
+    let driveCont = drv ? drv.continuous_s : 0;
+    let egoPittedGreen = false;
 
     for (let i = 0; i < H; i++) {
       const fi = p * H + i;
@@ -413,7 +433,7 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
           sTrack(world.trackTemp, world.rubber, w, cfg.track.meanDryGrip);
         const Sc = S < 0.35 ? 0.35 : S > 1.25 ? 1.25 : S;
         const mMid = mDry + F - q / 2;
-        let tLap = surrogateLap(m, Sc, mMid, w, mode, world.airTemp) * world.egoPace;
+        let tLap = surrogateLap(m, Sc, mMid, w, mode, world.airTemp) * world.egoPace * (drv ? drv.pace[driver] : 1);
         if (world.fut.trafficU[fi] < race.traffic.pPerLap) tLap += race.traffic.meanLoss_s * world.fut.trafficE[fi];
         tLap += race.residualSigma_s.value * world.fut.eps[fi];
         if (!caution) lastEgoLap = tLap;
@@ -462,7 +482,28 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
           if (pit) {
             const fBox = F;
             const want = refuel < 0 ? Math.max(0, Math.min(cap - fBox, qG * (world.lapsToFlag - i + car.fuel.reserveLaps) - fBox)) : Math.min(refuel, cap - fBox);
-            const svc = expectedService(m, want, pitTyres);
+            // the crew's driver policy at this stop (same rule as the engine's crews)
+            let swap = false;
+            if (drv && drv.pace.length > 1) {
+              const tot = Array.from({ length: drv.pace.length }, (_, d) => driveTot[d]);
+              const remaining = Math.max(0, world.duration - (T[0] + egoTime));
+              const next = chooseDriver({
+                current: driver,
+                pace: drv.pace,
+                total_s: tot,
+                continuous_s: driveCont,
+                minDrive_s: drv.minDrive_s,
+                maxContinuous_s: drv.maxContinuous_s,
+                remainingAfter_s: remaining,
+                nextStint_s: Math.min(remaining, (cap / qBase) * m.lapRef),
+              });
+              if (next !== driver) {
+                swap = true;
+                driver = next;
+                driveCont = 0;
+              }
+            }
+            const svc = expectedService(m, want, pitTyres, swap);
             egoTime += netPitLoss(m, svc, caution ? tPace : tLap, caution);
             F = fBox + want;
             fuelUsed = 0;
@@ -479,6 +520,10 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
         }
       }
       pitted[0] = pit ? 1 : 0;
+      if (!failed) {
+        driveTot[driver] += egoTime;
+        driveCont += egoTime;
+      }
       // ---- rivals
       for (let r = 0; r < R; r++) {
         const rv = world.rivals[r];
@@ -489,6 +534,7 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
         let t = caution ? tRun : rv.paceMean + rv.paceSd * world.fut.rivalZ[fi * R + r];
         let rp = 0;
         if (stint[r] + 1 >= win[r]) rp = 1;
+        else if (!caution && egoPittedGreen && Math.abs(T[r + 1] - T[0]) <= 3 && stint[r] >= 0.6 * win[r] && world.fut.rivalCautionU[fi * R + r] < pCover) rp = 1;
         else if (caution && laneOpen && !rivalCautionPitted[r] && (stint[r] >= win[r] - 2 || (stint[r] >= 8 && world.fut.rivalCautionU[fi * R + r] < rv.pCautionPit))) rp = 1;
         if (rp) {
           t += caution ? netCautionFull : netGreenFull;
@@ -499,6 +545,7 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
         Tn[r + 1] = T[r + 1] + t;
       }
       Tn[0] = failed ? Infinity : T[0] + egoTime;
+      egoPittedGreen = pit && !caution;
       // ---- caution queue: in order of the previous crossing, non-pitting cars keep the queue gap
       if (caution) {
         order.length = 0;

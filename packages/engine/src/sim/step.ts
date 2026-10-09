@@ -153,7 +153,18 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
   // ---- 4. finish
   const Tf = w.finish.T_finish_s;
   if (Tf !== null) {
-    for (const c of w.cars) if (c.running && !c.classified && c.laps > 0 && c.lapStart_s >= Tf) c.classified = true;
+    const minDrive = race.rules.drivers.minDrive_s[String(model.durationHours)] ?? 0;
+    for (const c of w.cars) {
+      if (c.running && !c.classified && c.laps > 0 && c.lapStart_s >= Tf) {
+        c.classified = true;
+        if (c.drivers.lineup.length > 1 && c.drivers.total_s.some((t) => t < minDrive)) {
+          c.driveViolation = true;
+          const short = c.drivers.lineup.filter((_, i) => c.drivers.total_s[i] < minDrive).map((d) => d.name).join(', ');
+          events.push({ type: 'penalty', car: c.no, step: k, reason: `minimum drive time missed (${short})`, world: w.id });
+        }
+      }
+    }
+    if (w.cars.some((c) => c.driveViolation)) rankCars(w);
     for (const rec of records) {
       const c = w.cars.find((x) => x.no === rec.no)!;
       rec.classified = c.classified;
@@ -207,6 +218,18 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
         car.tyreTemp_C = newTyreTemp(carCfg, env.airTemp);
         car.setsLeft[out.tyres] = Math.max(0, car.setsLeft[out.tyres] - 1);
       }
+      if (out.driverTo !== null && out.driverTo !== car.drivers.current) {
+        events.push({
+          type: 'driver_change',
+          car: car.no,
+          step: k,
+          from: car.drivers.lineup[car.drivers.current].name,
+          to: car.drivers.lineup[out.driverTo].name,
+          world: w.id,
+        });
+        car.drivers.current = out.driverTo;
+        car.drivers.continuous_s = 0;
+      }
       const cur = car.stints[car.stints.length - 1];
       cur.endLap = car.laps - 1;
       car.stints.push({ startLap: car.laps, compound: car.compound, startFuel_kg: car.fuel_kg, laps: 0 });
@@ -234,7 +257,8 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
         gripSkill: car.pace.gripSkill,
         wetSkill: fc0.wetSkill,
       }) * sTrack(env.trackTemp, env.rubber, env.w, cfg.track.meanDryGrip);
-    const base = surrogateLap(model, S, mMid, env.w, car.mode, env.airTemp) * car.pace.paceFactor;
+    const driverPace = car.drivers.lineup[car.drivers.current]?.pace ?? 1;
+    const base = surrogateLap(model, S, mMid, env.w, car.mode, env.airTemp) * car.pace.paceFactor * driverPace;
     const traffic = pd.trafficU.get(idx, k) < race.traffic.pPerLap ? race.traffic.meanLoss_s * pd.trafficE.get(idx, k) : 0;
     const dirty =
       !cautionLap && car.gapAhead_s < race.dirtyAir.gapThreshold_s
@@ -279,6 +303,9 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
     const canFinish = car.fuel_kg >= q + qGreen * (lapsToFlag - 1);
     if (!out && !canFinish && car.fuel_kg < q + (qGreen * lane.entryS) / L && !car.forced.includes('fuel')) car.forced.push('fuel');
     if (car.wear >= carCfg.tyres[car.compound].Wlimit && !car.forced.includes('wearLimit')) car.forced.push('wearLimit');
+    // drive-time limit: hand over before the current driver would exceed the continuous maximum
+    const dr = race.rules.drivers;
+    if (car.drivers.lineup.length > 1 && car.drivers.continuous_s + 2 * tFull > dr.maxContinuous_s && !car.forced.includes('driveTime')) car.forced.push('driveTime');
 
     let wantPit = act.pit || car.forced.length > 0;
     if (out && wantPit) {
@@ -394,6 +421,7 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
       running: true,
       classified: false,
       mode: car.mode,
+      driver: car.drivers.lineup[car.drivers.current]?.name,
     };
 
     // ---- retirement or fuel exhaustion on the track portion (fuel is never clamped to hide it)
@@ -437,10 +465,14 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
       }
       const j = car.stopIndex;
       const repairS = car.forced.includes('repair') ? car.repair_s : 0;
+      const nDrivers = car.drivers.lineup.length;
+      let driverTo: number | null = act.pit && act.driverChange && nDrivers > 1 ? (act.nextDriver ?? (car.drivers.current + 1) % nDrivers) : null;
+      if (driverTo === null && car.forced.includes('driveTime') && nDrivers > 1) driverTo = (car.drivers.current + 1) % nDrivers;
+      if (driverTo === car.drivers.current) driverTo = null;
       const svc = serviceTime(model, {
         refuel_kg: refuelApplied,
         tyres: pitTyres,
-        driverChange: false,
+        driverChange: driverTo !== null,
         logN: pd.pitLogN.get(idx, j),
         slowU: pd.pitSlowU.get(idx, j),
         slowAddU: pd.pitSlowAddU.get(idx, j),
@@ -450,7 +482,7 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
       car.wear = Math.min(1, car.wear + (kt * lane.entryS) / L);
       car.fuelUsedSinceStop_kg += car.fuel_kg - fuelBox;
       car.fuel_kg = fuelBox;
-      car.pendingOutLap = { service_s: svc, refuelApplied_kg: refuelApplied, tyres: pitTyres, t_line: lapStart + tLap, repaired: repairS > 0 };
+      car.pendingOutLap = { service_s: svc, refuelApplied_kg: refuelApplied, tyres: pitTyres, t_line: lapStart + tLap, repaired: repairS > 0, driverTo };
       car.stopIndex++;
       car.stops++;
       const forcedList = [...car.forced] as ForcedReason[];
@@ -499,6 +531,8 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
       }
     }
     tLap = cross - lapStart;
+    car.drivers.total_s[car.drivers.current] += tLap;
+    car.drivers.continuous_s += tLap;
     if (!inLap) {
       prevCross = cross;
       prevLapTime = tLap;
@@ -539,7 +573,8 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
 export function rankCars(w: WorldTruth): void {
   const finishers = w.cars.filter((c) => c.running || c.classified);
   const dnfs = w.cars.filter((c) => !c.running && !c.classified);
-  finishers.sort((a, b) => b.laps - a.laps || a.lapStart_s - b.lapStart_s);
+  // a drive-time violation classifies the car behind every compliant finisher
+  finishers.sort((a, b) => Number(a.driveViolation) - Number(b.driveViolation) || b.laps - a.laps || a.lapStart_s - b.lapStart_s);
   dnfs.sort((a, b) => b.laps - a.laps || (b.dnf?.atTime_s ?? 0) - (a.dnf?.atTime_s ?? 0));
   const all = [...finishers, ...dnfs];
   all.forEach((c, i) => {

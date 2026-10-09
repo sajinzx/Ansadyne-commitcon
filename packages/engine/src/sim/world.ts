@@ -1,10 +1,11 @@
 // M08 §8.2 — truth state. NEVER imported by strategy/**, estimator/** or planner/** (lint rule R3).
-import type { Compound, DnfCause, FieldCar, Mode, RaceEvent, StrategyId, Stint, CarLapRecord } from '@pitwall/shared';
+import type { Compound, DnfCause, DriverSpec, FieldCar, Mode, RaceEvent, StrategyId, Stint, CarLapRecord } from '@pitwall/shared';
 import type { ModelBundle } from '../vehicle/model';
 import type { Predraw } from '../rng/predraw';
 import { newTyreTemp } from '../vehicle/tyre';
+import { lineupFor } from '../strategy/drivers';
 
-export type ForcedReason = 'fuel' | 'wearLimit' | 'puncture' | 'repair';
+export type ForcedReason = 'fuel' | 'wearLimit' | 'puncture' | 'repair' | 'driveTime';
 
 export interface PendingOutLap {
   service_s: number;
@@ -12,6 +13,8 @@ export interface PendingOutLap {
   tyres: 'none' | Compound;
   t_line: number;
   repaired: boolean;
+  /** incoming driver index, or null when the same driver stays in */
+  driverTo: number | null;
 }
 
 export interface CarTruth {
@@ -48,6 +51,10 @@ export interface CarTruth {
   lastRefuelApplied_kg: number | null;
   /** tread-depth measurement of the set removed at the last stop (reported on the out-lap only) */
   treadMeasured: { wear: number; laps: number; compound: Compound } | null;
+  /** driver line-up, who is driving, drive-time bookkeeping */
+  drivers: { lineup: DriverSpec[]; current: number; total_s: number[]; continuous_s: number };
+  /** classified behind compliant finishers: a driver missed the minimum drive time */
+  driveViolation: boolean;
   lastLap: CarLapRecord | null;
   lastLapFlags: { inLap: boolean; outLap: boolean; caution: boolean; incident: boolean };
   pittedThisCaution: boolean;
@@ -94,6 +101,7 @@ export function initWorld(id: StrategyId, model: ModelBundle, pd: Predraw, field
   order.splice(Math.max(0, Math.min(rivals.length, egoGrid - 1)), 0, ego);
   const gridSlot = new Map(order.map((c, i) => [c.no, i + 1]));
   const sets = model.tyreSets;
+  const lineup = lineupFor(model);
   const cars: CarTruth[] = field.map((fc, idx) => {
     const isEgo = fc.no === egoNo;
     const g = gridSlot.get(fc.no)!;
@@ -139,6 +147,8 @@ export function initWorld(id: StrategyId, model: ModelBundle, pd: Predraw, field
       fuelUsedSinceStop_kg: 0,
       lastRefuelApplied_kg: null,
       treadMeasured: null,
+      drivers: { lineup: lineup.map((d) => ({ ...d })), current: 0, total_s: lineup.map(() => 0), continuous_s: 0 },
+      driveViolation: false,
       lastLap: null,
       lastLapFlags: { inLap: false, outLap: false, caution: false, incident: false },
       pittedThisCaution: false,
