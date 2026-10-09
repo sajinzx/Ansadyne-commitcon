@@ -23,3 +23,5 @@ export * from './bench/stats';
 export { EXPERIMENTS, runExperiment } from './bench/experiments';
 export { runSensitivity, sensitiveParams } from './bench/sensitivity';
 export * as stats from './stats';
+export * from './api';
+export { forkRun } from './fork';

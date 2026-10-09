@@ -379,6 +379,14 @@ export class Race {
     return r;
   }
 
+  /** What a strategy in world `id` sees now: last observation, history, belief and plan (no truth). */
+  worldContext(id: StrategyId): { obs: Observation; history: ObsHistory; belief: Belief | null; plan: Plan | null } | null {
+    const wi = STRATEGIES.indexOf(id);
+    const obs = this.lastObs[wi];
+    if (!obs) return null;
+    return { obs, history: this.histories[wi], belief: this.estimators[wi]?.belief() ?? null, plan: this.plans[wi] };
+  }
+
   plan(id: StrategyId): Plan | null {
     return this.plans[STRATEGIES.indexOf(id)];
   }
