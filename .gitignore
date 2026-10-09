@@ -10,3 +10,6 @@ playwright-report/
 test-results/
 .vite/
 *.tsbuildinfo
+apps/frontend/test-results/
+apps/frontend/playwright-report/
+apps/frontend/dist/
