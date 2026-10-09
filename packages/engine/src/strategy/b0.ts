@@ -9,6 +9,7 @@ import { sTrack } from '../track/surface';
 import { expectedService, netPitLoss } from '../sim/pit';
 import { availableTyres, compoundFor, pitAction, stayAction, type Strategy, type StrategyContext, type StrategyOutput } from './strategy';
 import { refuelRequest } from '../sim/pit';
+import { trafficMoments } from '../estimator/ekf';
 
 export interface DpParams {
   K: number; // laps to plan
@@ -137,7 +138,7 @@ export function dpParams(model: ModelBundle): DpParams {
     let v = lapCache.get(key);
     if (v === undefined) {
       const S = sCar(car, { compound: 'dry', w: 0, tyreTemp: temps[a], wear: wears[a], X: 1, gripSkill: egoField.gripSkill, wetSkill: 1 }) * Strk;
-      v = surrogateLap(model, S, car.mass_dry_kg.value + Math.max(0, fuelMid), 0, 'normal', 22) * egoField.paceFactor + 0.21;
+      v = surrogateLap(model, S, car.mass_dry_kg.value + Math.max(0, fuelMid), 0, 'normal', 22) * egoField.paceFactor + trafficMoments(cfg.race).mean;
       lapCache.set(key, v);
     }
     return v;

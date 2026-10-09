@@ -19,9 +19,10 @@ beforeAll(() => {
 });
 
 describe('M03 QSS lap solver and calibration (gate 2)', () => {
-  it('calibrates the reference lap to 107.00 ± 0.01 s with mu_peak in [1.33, 1.44]', () => {
-    expect(model.cal.reference.lapTime).toBeGreaterThan(106.99);
-    expect(model.cal.reference.lapTime).toBeLessThan(107.01);
+  it('calibrates the reference lap to the configured target ± 0.01 s with mu_peak in [1.33, 1.44]', () => {
+    const target = model.cfg.car.lapRef_s.value; // 107.2 s, fitted to the 2025 Rolex 24 GTD best laps
+    expect(model.cal.reference.lapTime).toBeGreaterThan(target - 0.01);
+    expect(model.cal.reference.lapTime).toBeLessThan(target + 0.01);
     expect(model.cal.muPeak).toBeGreaterThan(1.33);
     expect(model.cal.muPeak).toBeLessThan(1.44);
   });

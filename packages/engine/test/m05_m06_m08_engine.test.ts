@@ -224,9 +224,11 @@ describe('M06 cautions (gate 4)', () => {
         const all = [...le.cars].sort((a, b) => a.lapStart_s - b.lapStart_s);
         const onTrack = all.filter((r) => r.running && !r.pit && r.flag === 'caution');
         for (let i = 1; i < onTrack.length; i++) expect(onTrack[i].lineCross_s).toBeGreaterThan(onTrack[i - 1].lineCross_s);
-        for (let i = 1; i < all.length; i++) {
-          const a = all[i - 1];
-          const b = all[i];
+        // the queue is formed behind the previous car still running (a car that retired this lap left it)
+        const live = all.filter((r) => r.running);
+        for (let i = 1; i < live.length; i++) {
+          const a = live[i - 1];
+          const b = live[i];
           if (a.pit?.phase === 'in' || b.pit || b.flag !== 'caution' || !b.running) continue;
           const lt = b.lapTime_s;
           const isRun = Math.abs(lt - tRun) < 1e-6 || Math.abs(lt - tRun - limp) < 1e-6;

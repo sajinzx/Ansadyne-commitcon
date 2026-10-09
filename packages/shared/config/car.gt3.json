@@ -33,9 +33,9 @@
     "note": "share of available grip usable for traction (RWD)"
   },
   "lapRef_s": {
-    "value": 107.0,
-    "provenance": "ILLUSTRATIVE",
-    "note": "typical GT3 race pace at the Daytona road course; calibration target only"
+    "value": 107.2,
+    "provenance": "FITTED",
+    "note": "reference lap (41 kg, new dry tyres) fitted to the 2025 Rolex 24 GTD class fastest lap 1:47.217 and GTD Pro 1:47.156 (official IMSA results); calibration target for mu_peak"
   },
   "referenceConditions": {
     "fuel_kg": 41,
@@ -78,7 +78,8 @@
     "cautionBurnFactor": 0.35,
     "gaugeNoise_kg": 0.4,
     "reserveLaps": 1.0,
-    "provenance": "ASSUMED"
+    "provenance": "ASSUMED",
+    "note": "82 kg gives about 31 laps (~56 min at race pace), consistent with GTD stints of roughly 60 minutes on a full load (sportscar365)"
   },
   "tyres": {
     "dry": {

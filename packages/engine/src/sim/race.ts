@@ -222,6 +222,9 @@ export class Race {
     const inj = this.applyInjections();
     out.events.push(...inj.events);
 
+    // a paired family caution waits until no world is already under caution, so it starts in all of them
+    const famPostponed = this.forcedCautionStep === k && this.worlds.some((w) => !w.finished && w.caution !== null && w.caution.t_end === null);
+    if (famPostponed) this.forcedCautionStep = k + 1;
     for (let wi = 0; wi < 3; wi++) {
       const w = this.worlds[wi];
       if (w.finished) continue;
@@ -256,7 +259,7 @@ export class Race {
         hist.last.push(robs);
         if (hist.last.length > 10) hist.last.shift();
       }
-      const forced = this.forcedCautionStep === k || this.forcedCautionPerWorld[wi] === k;
+      const forced = (this.forcedCautionStep === k && !famPostponed) || this.forcedCautionPerWorld[wi] === k;
       const res = stepWorld(w, {
         model: this.model,
         pd: this.pd,

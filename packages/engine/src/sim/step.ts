@@ -71,7 +71,9 @@ export function stepWorld(w: WorldTruth, ctx: StepContext): StepResult {
   const W_lo = Math.max(...running.map((c) => c.lapStart_s));
 
   // ---- 1. caution start (window rule: t_c ≥ every running car's current lap start)
-  if (!w.caution) {
+  // no new caution once the flag is known or the field is past the duration (it could not affect the result,
+  // and classified cars' crossings would lie after its start)
+  if (!w.caution && w.finish.T_finish_s === null && W_lo < race.duration_s) {
     let tc: number | null = null;
     let cause: CautionState['cause'] = 'background';
     if (w.pendingCautionStart_s !== null) {
