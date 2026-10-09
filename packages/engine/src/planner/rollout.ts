@@ -10,7 +10,7 @@ import { sTrack } from '../track/surface';
 import { netPitLoss, expectedService, fuelAtBox } from '../sim/pit';
 import { categoricalFromU } from '../rng/rng';
 import { stationarySd } from '../stochastic/ou';
-import { chooseDriver } from '../strategy/drivers';
+import { chooseDriver, otherDriverNeed, driverStopDue } from '../strategy/drivers';
 
 export interface RivalCautionStats {
   [no: number]: { pitted: number; stayed: number };
@@ -387,7 +387,20 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
         } else if (si >= stopsSorted.length && lapNo > lastExplicit) {
           // base policy after the plan's explicit stops: B1 rules on the path's state
           const Wb = tyreAge * car.tyres[compound].kBase_per_lap;
-          if (!canFinish && F - q - qG * entryFrac < car.fuel.reserveLaps * qG) {
+          const need = drv && drv.pace.length > 1 ? otherDriverNeed(driveTot.subarray(0, drv.pace.length), driver, drv.minDrive_s) : 0;
+          const remainingNow = world.duration - T[0];
+          const ownMet = !drv || driveTot[driver] >= drv.minDrive_s;
+          if (need > 0 && (driverStopDue(remainingNow, need, m.lapRef) || (caution && laneOpen && ownMet && remainingNow > need + 2 * m.lapRef))) {
+            pit = true;
+            pitTyres = Wb >= th.cautionTyreWear ? (wantWet ? 'wet' : 'dry') : 'none';
+          } else if (compound === 'dry' && w >= th.wetIn && sets.wet > 0 && lapsToGo > 1) {
+            // B1's wet-in rule: slicks off at the wetness threshold, not only when they are undriveable
+            pit = true;
+            pitTyres = 'wet';
+          } else if (compound === 'wet' && w <= th.wetOut && i > 2 && sets.dry > 0 && lapsToGo > 3) {
+            pit = true;
+            pitTyres = 'dry';
+          } else if (!canFinish && F - q - qG * entryFrac < car.fuel.reserveLaps * qG) {
             pit = true;
             pitTyres = Wb >= th.fuelTyreWear ? (wantWet ? 'wet' : 'dry') : 'none';
           } else if (caution && laneOpen && lapsToGo > 6 && (fuelUsed >= th.cautionFuelUsed * cap || Wb >= th.cautionWear)) {
@@ -592,6 +605,19 @@ export function rollout(world: RolloutWorld, plan: RolloutPlan, from: number, to
       continue;
     }
     out.fail[p] = 0;
+    // a missed minimum drive time classifies us behind every compliant finisher (rivals are assumed compliant);
+    // beyond the horizon the remaining time can still be given to the driver who needs it
+    if (drv && drv.pace.length > 1) {
+      const left = flagT >= 0 ? 0 : Math.max(0, world.duration - T[0]);
+      let short = 0;
+      for (let d = 0; d < drv.pace.length; d++) short += Math.max(0, drv.minDrive_s - driveTot[d]);
+      if (short > left + 1e-6) {
+        let running = 0;
+        for (let r = 0; r < R; r++) if (Number.isFinite(T[r + 1])) running++;
+        out.pos[p] = 1 + running + Math.min(0.99, short / Math.max(1, drv.minDrive_s));
+        continue;
+      }
+    }
     // projected distance at the flag for every running car
     const tEgoLap = lastEgoLap;
     let better = 0;

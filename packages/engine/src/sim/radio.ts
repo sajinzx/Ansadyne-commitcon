@@ -26,6 +26,7 @@ const B1_RULE: Record<string, string> = {
   wetIn: 'wet-in rule: observed wetness passed 0.30 on slicks',
   wetOut: 'wet-out rule: wetness at or below 0.15 for 3 laps on wet tyres',
   wear: 'wear rule: tyres past the wear limit for their age',
+  driver: 'driver rule: the other driver still needs their minimum drive time (taken under caution, or at the last safe lap)',
 };
 
 export interface RadioContext {

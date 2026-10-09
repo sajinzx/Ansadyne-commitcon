@@ -66,3 +66,27 @@ export function applyDriverPolicy(action: Action, obs: Observation, model: Model
   });
   return next === d.current ? action : { ...action, driverChange: true, nextDriver: next };
 }
+
+/** Seconds of driving the other drivers still need to reach the minimum (the largest single need). */
+export function otherDriverNeed(total_s: ArrayLike<number>, current: number, minDrive_s: number): number {
+  let need = 0;
+  for (let d = 0; d < total_s.length; d++) if (d !== current) need = Math.max(need, minDrive_s - total_s[d]);
+  return Math.max(0, need);
+}
+
+/**
+ * The last sensible moment for a driver change: after the stop at the end of the next lap the incoming driver must
+ * still have their minimum ahead of them, with two laps of slack. A crew that misses it is classified behind every
+ * compliant finisher, so every strategy (and the planner's base policy) treats it like a forced stop.
+ */
+export function driverStopDue(remaining_s: number, need_s: number, tLap: number): boolean {
+  return need_s > 0 && remaining_s - tLap - need_s < 2 * tLap;
+}
+
+/** Driver-change bookkeeping from an observation: the other drivers' need and whether the stop is due now. */
+export function driverStatus(obs: Observation, model: ModelBundle): { need_s: number; due: boolean; ownNeed_s: number } {
+  const d = obs.ego.drivers;
+  if (!d || d.lineup.length <= 1) return { need_s: 0, due: false, ownNeed_s: 0 };
+  const need = otherDriverNeed(d.total_s, d.current, d.minDrive_s);
+  return { need_s: need, due: driverStopDue(obs.remaining_s, need, model.lapRef), ownNeed_s: Math.max(0, d.minDrive_s - d.total_s[d.current]) };
+}

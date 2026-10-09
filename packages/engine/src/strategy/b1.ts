@@ -1,6 +1,7 @@
 // M10 §10.2 — B1: reactive crew-chief rules from the observation and simple bookkeeping (no filter).
 import type { Action, B1Thresholds, Belief, ObsHistory, Observation, Plan } from '@pitwall/shared';
 import type { ModelBundle } from '../vehicle/model';
+import { driverStatus } from './drivers';
 import { availableTyres, burnEstimate, compoundFor, pitAction, stayAction, wearByAge, type Strategy, type StrategyContext, type StrategyOutput } from './strategy';
 
 export interface B1Options {
@@ -9,7 +10,7 @@ export interface B1Options {
   alwaysTyres?: boolean;
 }
 
-export type B1Rule = 'fuel' | 'caution' | 'wetIn' | 'wetOut' | 'wear' | null;
+export type B1Rule = 'fuel' | 'caution' | 'wetIn' | 'wetOut' | 'wear' | 'driver' | null;
 
 /** Evaluate the B1 rules; returns the action and which rule fired. */
 export function b1Decide(obs: Observation, history: ObsHistory, model: ModelBundle, opt: B1Options): { action: Action; rule: B1Rule } {
@@ -35,8 +36,14 @@ export function b1Decide(obs: Observation, history: ObsHistory, model: ModelBund
   if (!enoughToFinish && F - q - qGreen * entryFrac < opt.reserveLaps * qGreen) {
     return { action: pitAction(model, obs, F, tyresIf(th.fuelTyreWear)), rule: 'fuel' };
   }
+  const drv = driverStatus(obs, model);
   if (lapsToGo > 6 && obs.flag === 'caution' && obs.pitOpen && (obs.ego.fuelUsedSinceStop_kg >= th.cautionFuelUsed * cap || W >= th.cautionWear)) {
     return { action: pitAction(model, obs, F, tyresIf(th.cautionTyreWear)), rule: 'caution' };
+  }
+  // driver change: take it under a caution once the current driver has done their minimum, or at the last moment
+  const cautionChange = obs.flag === 'caution' && obs.pitOpen && drv.need_s > 0 && drv.ownNeed_s <= 0 && obs.remaining_s > drv.need_s + 2 * tLap;
+  if (drv.due || cautionChange) {
+    if (obs.flag === 'green' || obs.pitOpen) return { action: pitAction(model, obs, F, tyresIf(th.cautionTyreWear)), rule: 'driver' };
   }
   if (obs.ego.compound === 'dry' && obs.wetness_est >= th.wetIn && obs.ego.setsLeft.wet > 0) {
     return { action: pitAction(model, obs, F, 'wet'), rule: 'wetIn' };

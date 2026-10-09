@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { ObsHistory, Observation } from '@pitwall/shared';
 import { b1Race, sharedModel } from './helpers';
-import { chooseDriver } from '../src/strategy/drivers';
+import { chooseDriver, driverStopDue } from '../src/strategy/drivers';
+import { b1Decide, defaultB1Options } from '../src/strategy/b1';
+import { OptStrategy } from '../src/strategy/opt';
 import { shouldCover } from '../src/strategy/rivals';
 
 const base = { pace: [1, 1.007], minDrive_s: 2700, maxContinuous_s: 14400, remainingAfter_s: 7000, nextStint_s: 3300 };
@@ -64,5 +66,50 @@ describe('reactive rivals', () => {
   it('ignore far-away stops and stay out early in their stint', () => {
     expect(shouldCover(obs(22, 1, 12), { last: [obs(21, 0, 12)] }, model, 3, 0.6)).toBe(false);
     expect(shouldCover(obs(8, 1, 1.5), { last: [obs(7, 0, 1.5)] }, model, 3, 0.6)).toBe(false);
+  });
+});
+
+describe('minimum drive time is respected by every crew', () => {
+  const model = sharedModel();
+  const withDrivers = (remaining_s: number, total: [number, number], flag: 'green' | 'caution' = 'green'): Observation => {
+    const o = obs(10, 0, 50);
+    o.remaining_s = remaining_s;
+    o.flag = flag;
+    o.ego.fuelGauge_kg = 60;
+    o.ego.fuelUsedSinceStop_kg = 10;
+    o.ego.drivers = {
+      current: 0,
+      lineup: [{ name: 'Pro', pace: 1, rating: 'Platinum' }, { name: 'Bronze', pace: 1.007, rating: 'Bronze' }],
+      total_s: total,
+      continuous_s: total[0],
+      minDrive_s: 1200,
+      maxContinuous_s: 14400,
+    };
+    return o;
+  };
+  it('the driver stop falls due with two laps of slack left', () => {
+    expect(driverStopDue(1400, 1200, 107)).toBe(true);
+    expect(driverStopDue(3000, 1200, 107)).toBe(false);
+    expect(driverStopDue(1400, 0, 107)).toBe(false);
+  });
+  it('B1 pits for the driver change at the last safe lap even with fuel to finish', () => {
+    const r = b1Decide(withDrivers(1450, [2000, 0]), { last: [] }, model, defaultB1Options(model));
+    expect(r.rule).toBe('driver');
+    expect(r.action.pit).toBe(true);
+  });
+  it('B1 takes the driver change under a caution once the current driver has done their minimum', () => {
+    const r = b1Decide(withDrivers(2400, [1300, 0], 'caution'), { last: [] }, model, defaultB1Options(model));
+    expect(r.rule).toBe('driver');
+    // not before the current driver's own minimum is met
+    expect(b1Decide(withDrivers(2400, [800, 0], 'caution'), { last: [] }, model, defaultB1Options(model)).rule).toBe(null);
+  });
+  it('OPT executes the compound its plan chose (a planned swap to slicks is not turned back into wets)', () => {
+    const o = withDrivers(5000, [3000, 1500]);
+    o.ego.compound = 'wet';
+    o.wetness_est = 0.2; // still above the wet-out level, so no automatic swap: only the plan asks for slicks
+    const opt = new OptStrategy({ initialPlan: { stops: [{ lap: o.lap + 1, refuel: 'helper', tyres: 'dry' }], mode: null, source: 'b0_dp', committedLap: o.lap } });
+    const out = opt.decide(o, { last: [] }, null, { model, masterSeed: 1, decisionIdx: 0 });
+    expect(out.action.pit).toBe(true);
+    expect(out.action.tyres).toBe('dry');
   });
 });
