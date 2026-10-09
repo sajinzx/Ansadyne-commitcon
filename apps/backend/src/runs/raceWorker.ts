@@ -47,6 +47,7 @@ function doStep() {
   const msgs: { type: StreamType; payload: unknown }[] = [];
   for (const lap of out.laps) msgs.push({ type: 'lap', payload: lap });
   for (const d of out.decisions) msgs.push({ type: 'decision', payload: d });
+  for (const m of out.radio) msgs.push({ type: 'radio', payload: m });
   for (const e of out.events) {
     if (e.type === 'warning') msgs.push({ type: 'warning', payload: { code: e.code, detail: e.detail } });
     else msgs.push({ type: 'event', payload: e });

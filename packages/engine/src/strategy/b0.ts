@@ -183,7 +183,9 @@ export class B0Strategy implements Strategy {
     this.plan.stops = this.plan.stops.filter((s) => s.lap >= lapNext);
     const stop = this.plan.stops[0];
     if (stop && stop.lap === lapNext && !obs.ego.lastLapFlags.inLap) {
-      const tyres = stop.tyres === 'none' ? 'none' : availableTyres(obs, compoundFor(obs.wetness_est));
+      // a what-if fork honours the compound the user chose; the DP plan adapts it to the conditions
+      const tyres =
+        stop.tyres === 'none' ? 'none' : this.plan.source === 'what-if' ? availableTyres(obs, stop.tyres) : availableTyres(obs, compoundFor(obs.wetness_est));
       const refuel =
         stop.refuel === 'helper'
           ? refuelRequest(ctx.model, obs.ego.fuelGauge_kg, ctx.model.cfg.car.fuel.qBase_kg_per_lap, obs.raceTime_s + ctx.model.lapRef, ctx.model.lapRef)

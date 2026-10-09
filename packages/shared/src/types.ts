@@ -795,7 +795,21 @@ export type StreamType =
   | 'warning'
   | 'state'
   | 'run_end'
-  | 'heartbeat';
+  | 'heartbeat'
+  | 'radio';
+
+/** Live message from the engine to the team, with the evidence behind it. */
+export interface RadioMessage {
+  world: StrategyId;
+  step: number;
+  lap: number;
+  raceTime_s: number;
+  kind: 'pit' | 'decision' | 'weather' | 'caution' | 'driver' | 'tyres' | 'fuel' | 'penalty' | 'incident';
+  priority: 'info' | 'action' | 'alert';
+  title: string;
+  text: string;
+  proof: string[];
+}
 
 export interface StreamMessage<T = unknown> {
   v: 1;

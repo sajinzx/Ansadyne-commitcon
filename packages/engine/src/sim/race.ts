@@ -12,6 +12,7 @@ import type {
   Observation,
   Plan,
   RaceEvent,
+  RadioMessage,
   RunConfig,
   SegmentOverride,
   StrategyId,
@@ -20,7 +21,8 @@ import { STRATEGIES } from '@pitwall/shared';
 import { assembleModel, buildModel, type ModelBundle } from '../vehicle/model';
 import { Surrogate } from '../vehicle/surrogate';
 import { predraw, predrawSizes, type Predraw } from '../rng/predraw';
-import { EnvTimeline } from '../world/weather';
+import { EnvTimeline, type EnvState } from '../world/weather';
+import { buildRadio } from './radio';
 import { ClipCounter } from '../stochastic/ou';
 import { initWorld, type WorldTruth } from './world';
 import { stepWorld, cautionAt, laneOpenAt } from './step';
@@ -58,6 +60,8 @@ export interface RaceOptions {
 
 export interface StepOutput {
   step: number;
+  /** live team-radio messages about our car, per world */
+  radio: RadioMessage[];
   laps: LapEvent[];
   decisions: Decision[];
   triggers: { world: StrategyId; trigger: string }[];
@@ -96,6 +100,8 @@ export class Race {
   private forcedCautionPerWorld: (number | null)[] = [null, null, null];
   private lastObs: (Observation | null)[] = [null, null, null];
   private plans: (Plan | null)[] = [null, null, null];
+  private radioEnv: (EnvState | null)[] = [null, null, null];
+  private radioRegimes: string[][] = [[], [], []];
 
   constructor(readonly opts: RaceOptions) {
     const { run, configs } = opts;
@@ -259,7 +265,7 @@ export class Race {
   /** Advance every world one step. */
   step(): StepOutput {
     const k = this.k;
-    const out: StepOutput = { step: k, laps: [], decisions: [], triggers: [], events: [] };
+    const out: StepOutput = { step: k, radio: [], laps: [], decisions: [], triggers: [], events: [] };
     if (this.finished) return out;
     if (this.opts.keepSnapshots) this.takeSnapshot();
     this.expireOverrides();
@@ -275,6 +281,9 @@ export class Race {
       const actions = new Map<number, import('@pitwall/shared').Action>();
       // our car
       const ego = w.cars.find((c) => c.no === this.egoNo)!;
+      let radioDecision: Decision | undefined;
+      let radioNote: string | undefined;
+      const envBefore = this.env.at(ego.lapStart_s);
       if (ego.running && !ego.classified) {
         const obs = this.lastObs[wi] ?? this.observation(wi);
         const belief = this.estimators[wi]?.belief() ?? null;
@@ -289,6 +298,9 @@ export class Race {
           out.decisions.push(res.decision);
           this.decisionCount++;
         }
+        radioDecision = res.decision;
+        const p = this.plans[wi];
+        radioNote = res.note ?? (p && res.action.pit ? `planned stop of the ${w.id} plan (${p.source}, committed lap ${p.committedLap})` : undefined);
         if (res.trigger) {
           out.triggers.push({ world: w.id, trigger: res.trigger });
           out.events.push({ type: 'trigger', world: w.id, trigger: res.trigger, step: k });
@@ -332,6 +344,31 @@ export class Race {
         }
       }
       out.laps.push(this.lapEvent(wi, res.records, res.events));
+      // live radio about our car in this world
+      const prevEnv = this.radioEnv[wi];
+      const envNow = this.env.at(ego.lapStart_s);
+      const hist = this.radioRegimes[wi];
+      hist.push(envNow.regime);
+      if (hist.length > 8) hist.shift();
+      out.radio.push(
+        ...buildRadio({
+          world: w.id,
+          step: k,
+          model: this.model,
+          ego,
+          rec: res.records.find((r) => r.no === this.egoNo),
+          events: res.events,
+          decision: radioDecision,
+          note: radioNote,
+          obs: this.lastObs[wi],
+          belief: this.estimators[wi]?.belief() ?? null,
+          env: envNow,
+          prevEnv: prevEnv ?? envBefore,
+          rainIn20: this.env.rainProb(envNow.regimeIdx).in20,
+          regimeHistory: [...hist],
+        }),
+      );
+      this.radioEnv[wi] = envNow;
     }
     this.scheduleFamilyCautions(k);
     this.k++;
