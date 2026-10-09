@@ -133,7 +133,10 @@ export function buildCandidates(job: PlanJob): Candidate[] {
   cands.push(mk('pit_fuel', [{ lap: lapNext, refuel: 'helper', tyres: 'none' }], null, pitNowLegal));
   cands.push(mk('pit_fuel_tyres', [{ lap: lapNext, refuel: 'helper', tyres: want }], null, pitNowLegal && obs.ego.setsLeft[want] > 0));
   if (obs.wetness_est >= 0.1 || obs.rainProb.in20 >= 0.3) {
-    cands.push(mk('pit_swap_compound', [{ lap: lapNext, refuel: 'helper', tyres: other }], null, pitNowLegal && obs.ego.setsLeft[other] > 0));
+    // hysteresis: back to slicks only once the track is below the wet-out level, wets only on a wetting track
+    const th = model.cfg.planner.b1;
+    const sensible = other === 'dry' ? obs.wetness_est <= th.wetOut : obs.wetness_est >= th.wetOut || obs.rainProb.in20 >= 0.5;
+    cands.push(mk('pit_swap_compound', [{ lap: lapNext, refuel: 'helper', tyres: other }], null, pitNowLegal && sensible && obs.ego.setsLeft[other] > 0));
   }
   cands.push(mk('pit_in_2', [{ lap: obs.lap + 2, refuel: 'helper', tyres: want }], null, obs.ego.setsLeft[want] > 0));
   cands.push(mk('pit_in_4', [{ lap: obs.lap + 4, refuel: 'helper', tyres: want }], null, obs.ego.setsLeft[want] > 0));

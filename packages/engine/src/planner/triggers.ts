@@ -56,7 +56,11 @@ export function evaluateTriggers(st: TriggerState, obs: Observation, belief: Bel
   if (belief && cool('fuel', tc.fuelCooldown)) {
     const q = nominalBurn(model.cfg.car, 'normal') * belief.Zeff.mean;
     const entryFrac = model.lane.entryS / model.lapLength;
-    const planned = plan?.stops[0]?.lap;
+    const tLapF = obs.ego.lastLap_s > 60 && obs.ego.lastLap_s < 400 ? obs.ego.lastLap_s : model.lapRef;
+    const flagLap = lap + Math.ceil(Math.max(0, obs.remaining_s) / tLapF) + 1;
+    // a projected stop after the flag is no stop at all: judge the fuel against the finish instead
+    const planned0 = plan?.stops[0]?.lap;
+    const planned = planned0 !== undefined && planned0 < flagLap ? planned0 : undefined;
     if (planned !== undefined) {
       const lapsBefore = Math.max(0, planned - lap - 1);
       const atEntry = belief.fuel.mean - q * (lapsBefore + entryFrac);
