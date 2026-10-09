@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="Barlow Condensed, Arial Narrow, Helvetica, sans-serif">
+  <rect width="800" height="420" rx="14" fill="#0E1013"/>
+  <text x="400" y="48" text-anchor="middle" font-size="30" font-weight="700" fill="#E8EAED" letter-spacing="2">WHEN THE SAFETY CAR COMES OUT</text>
+  <rect x="30" y="76" width="355" height="300" rx="10" fill="#15181D" stroke="#323843"/>
+  <text x="207" y="116" text-anchor="middle" font-size="22" fill="#8B929C" letter-spacing="2">PITTING UNDER GREEN</text>
+  <text x="207" y="210" text-anchor="middle" font-size="84" font-weight="700" fill="#FF5A5A">71.9 s</text>
+  <text x="207" y="252" text-anchor="middle" font-size="22" fill="#E8EAED">full price, no discount</text>
+  <text x="207" y="330" text-anchor="middle" font-size="48">😐</text>
+  <rect x="415" y="76" width="355" height="300" rx="10" fill="#15181D" stroke="#FFC23D" stroke-width="2"/>
+  <text x="592" y="116" text-anchor="middle" font-size="22" fill="#FFC23D" letter-spacing="2">PITTING UNDER CAUTION</text>
+  <text x="592" y="210" text-anchor="middle" font-size="84" font-weight="700" fill="#D7FF3F">55.5 s</text>
+  <text x="592" y="252" text-anchor="middle" font-size="22" fill="#E8EAED">16 s off. Everybody in. BOX BOX.</text>
+  <text x="592" y="330" text-anchor="middle" font-size="48">🤑</text>
+  <text x="400" y="404" text-anchor="middle" font-size="15" fill="#5C636D">net pit loss from PITWALL's pit model · synthetic numbers</text>
+</svg>

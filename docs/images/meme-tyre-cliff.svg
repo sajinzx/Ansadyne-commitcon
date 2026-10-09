@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="Barlow Condensed, Arial Narrow, Helvetica, sans-serif">
+  <rect width="800" height="400" rx="14" fill="#0E1013"/>
+  <text x="400" y="38" text-anchor="middle" font-size="28" font-weight="700" fill="#E8EAED" letter-spacing="2">TYRE GRIP vs WEAR · THE CLIFF IS REAL</text>
+  <line x1="80" y1="340" x2="760" y2="340" stroke="#323843"/>
+  <line x1="80" y1="70" x2="80" y2="340" stroke="#323843"/>
+  <text x="420" y="372" text-anchor="middle" font-size="18" fill="#8B929C">tyre wear W (0 = brand new, 1 = canvas)</text>
+  <text x="44" y="205" text-anchor="middle" font-size="18" fill="#8B929C" transform="rotate(-90 44 205)">grip factor f_W</text>
+  <polyline fill="none" stroke="#D7FF3F" stroke-width="4" stroke-linejoin="round" points="80,80 97,82 114,83 131,85 148,86 165,88 182,89 199,91 216,92 233,94 250,96 267,97 284,99 301,100 318,102 335,103 352,105 369,107 386,108 403,110 420,111 437,113 454,114 471,116 488,119 505,123 522,128 539,134 556,141 573,149 590,158 607,168 624,179 641,190 658,203 675,217 692,232 709,247 726,264 743,282 760,300"/>
+  <line x1="454" y1="76" x2="454" y2="340" stroke="#FFC23D" stroke-dasharray="6 6"/>
+  <text x="464" y="96" text-anchor="start" font-size="18" fill="#FFC23D">W = 0.55 · the cliff</text>
+  <text x="260" y="160" text-anchor="middle" font-size="22" fill="#E8EAED">"tyres feel great" 😎</text>
+  <text x="260" y="186" text-anchor="middle" font-size="16" fill="#8B929C">lose 0.12 grip per unit of wear</text>
+  <text x="600" y="300" text-anchor="middle" font-size="22" fill="#FF5A5A">"I have no rear tyres" 😱</text>
+  <text x="600" y="324" text-anchor="middle" font-size="16" fill="#8B929C">plus 1.5 × (W − 0.55)² on top</text>
+</svg>

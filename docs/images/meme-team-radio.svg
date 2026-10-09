@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" font-family="JetBrains Mono, Consolas, Menlo, monospace">
+  <rect width="800" height="400" rx="14" fill="#0E1013"/>
+  <text x="32" y="46" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-size="26" font-weight="700" fill="#D7FF3F" letter-spacing="3">📻 TEAM RADIO · CAR #12 · LAP 46</text>
+  <g font-size="19">
+    <rect x="32" y="74" width="560" height="54" rx="8" fill="#1B1F25"/>
+    <text x="50" y="108" fill="#E8EAED"><tspan fill="#D7FF3F" font-weight="700">#12:</tspan> Tyres are gone. Box this lap?</text>
+    <rect x="208" y="144" width="560" height="84" rx="8" fill="#1B1F25" stroke="#5BB8FF"/>
+    <text x="226" y="178" fill="#E8EAED"><tspan fill="#5BB8FF" font-weight="700">PITWALL:</tspan> Negative. 400 futures say</text>
+    <text x="226" y="206" fill="#E8EAED">stay out 2 laps. Δ vs B1 −1.4.</text>
+    <rect x="32" y="244" width="560" height="54" rx="8" fill="#1B1F25"/>
+    <text x="50" y="278" fill="#E8EAED"><tspan fill="#D7FF3F" font-weight="700">#12:</tspan> I asked for yes or no.</text>
+    <rect x="208" y="314" width="560" height="54" rx="8" fill="#1B1F25" stroke="#FFC23D"/>
+    <text x="226" y="348" fill="#E8EAED"><tspan fill="#FFC23D" font-weight="700">PITWALL:</tspan> CAUTION. Box, box. 📦📦</text>
+  </g>
+</svg>

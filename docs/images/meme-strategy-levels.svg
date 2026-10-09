@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" font-family="Barlow Condensed, Arial Narrow, Helvetica, sans-serif">
+  <rect width="800" height="460" rx="14" fill="#0E1013"/>
+  <text x="400" y="44" text-anchor="middle" font-size="28" font-weight="700" fill="#E8EAED" letter-spacing="2">STRATEGY ENLIGHTENMENT, RANKED</text>
+  <g font-size="22">
+    <rect x="30" y="66" width="740" height="80" rx="10" fill="#15181D" stroke="#5BB8FF"/>
+    <text x="52" y="118" font-size="34">💡</text>
+    <text x="110" y="100" fill="#5BB8FF" letter-spacing="1">LEVEL 1 · B1 REACTIVE</text>
+    <text x="110" y="128" fill="#E8EAED">"Fuel light is on. I guess we pit?"</text>
+    <rect x="30" y="156" width="740" height="80" rx="10" fill="#15181D" stroke="#FF8C42"/>
+    <text x="52" y="208" font-size="34">📋</text>
+    <text x="110" y="190" fill="#FF8C42" letter-spacing="1">LEVEL 2 · B0 STATIC</text>
+    <text x="110" y="218" fill="#E8EAED">"Laps 30, 60, 90. It's in the spreadsheet. The weather can wait."</text>
+    <rect x="30" y="246" width="740" height="80" rx="10" fill="#15181D" stroke="#D7FF3F"/>
+    <text x="52" y="298" font-size="34">🧠</text>
+    <text x="110" y="280" fill="#D7FF3F" letter-spacing="1">LEVEL 3 · OPT DYNAMIC</text>
+    <text x="110" y="308" fill="#E8EAED">"Estimate hidden wear, simulate 400 futures, then decide."</text>
+    <rect x="30" y="336" width="740" height="100" rx="10" fill="#1B1F25" stroke="#D7FF3F" stroke-width="2"/>
+    <text x="52" y="394" font-size="34">🌌</text>
+    <text x="110" y="370" fill="#D7FF3F" letter-spacing="1">LEVEL 4 · PAIRED BENCHMARK</text>
+    <text x="110" y="398" fill="#E8EAED">"Run all three on the same dice a thousand times, Holm-correct it,</text>
+    <text x="110" y="422" fill="#E8EAED">and only then say who won."</text>
+  </g>
+</svg>
