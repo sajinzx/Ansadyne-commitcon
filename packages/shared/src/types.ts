@@ -699,6 +699,13 @@ export interface FamilyResult {
   meanStops: Record<StrategyId, number>;
   meanPos: Record<StrategyId, number>;
   decisionMsP95: number;
+  /** Wilson 95% intervals of the win/tie/loss shares */
+  winTieLossCI?: Record<'OPT-B1' | 'OPT-B0', [[number, number], [number, number], [number, number]]>;
+  /** McNemar exact p-value for paired finish/DNF */
+  mcnemarP?: Record<'OPT-B1' | 'OPT-B0', number>;
+  pTop3?: Record<StrategyId, number>;
+  /** the claim rule: Holm-adjusted test favours OPT over B1 */
+  claimOptBeatsB1?: boolean;
 }
 
 export interface BenchResult {

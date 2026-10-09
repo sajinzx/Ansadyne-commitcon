@@ -27,6 +27,7 @@ import { observe } from './observer';
 import { makeRivalPolicy, type RivalPolicy } from '../strategy/rivals';
 import type { Strategy, StrategyOutput } from '../strategy/strategy';
 import { applyFamily, type FamilyEffects } from '../bench/families';
+import type { OracleTruth } from '../estimator/oracle';
 
 export interface EstimatorLike {
   belief(): Belief;
@@ -47,6 +48,8 @@ export interface RaceOptions {
   family?: string;
   /** called when the model must be rebuilt for new segment overrides (cache hook) */
   surrogateFor?: (overrides: SegmentOverride[]) => Surrogate;
+  /** bench-only (M13 experiment 4): inject the truth into estimators that support it */
+  oracleBelief?: boolean;
   /** test hook applied to the pre-draws (e.g. zeroNoise) */
   predrawTransform?: (pd: Predraw) => Predraw;
 }
@@ -276,6 +279,10 @@ export class Race {
         }
         this.lastObs[wi] = obs;
         this.estimators[wi]?.update(obs);
+        const est = this.estimators[wi] as (EstimatorLike & { inject?: (t: OracleTruth) => void }) | null;
+        if (this.opts.oracleBelief && est?.inject) {
+          est.inject({ fuel: ego.fuel_kg, lnX: ego.lnX, lnY: ego.lnY, bY: ego.coeff.bY, wear: ego.wear, lnZ: ego.lnZ, bZ: ego.coeff.bZ });
+        }
       }
       out.laps.push(this.lapEvent(wi, res.records, res.events));
     }
