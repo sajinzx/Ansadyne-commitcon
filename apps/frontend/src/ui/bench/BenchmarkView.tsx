@@ -5,7 +5,7 @@ import { scaleLinear } from 'd3-scale';
 import { Panel } from '../layout/Panel';
 import { Badge } from '../layout/Badge';
 import { useBench } from '../../store/benchStore';
-import { api } from '../../api/client';
+import { api, STANDALONE } from '../../api/client';
 import { fmt, sign } from '../../lib/format';
 
 const FAMILY_LABEL: Record<string, string> = {
@@ -183,7 +183,7 @@ export function BenchmarkView() {
           </div>
         )}
         {err && <div className="text-bad mono text-[12px]">{err}</div>}
-        <p className="text-muted text-[12px]">Performance is reported, not required. Settings are tuned on dev only; val/test runs record the settings hash. Benchmark races run headless with the planner inline.</p>
+        <p className="text-muted text-[12px]">Performance is reported, not required. Settings are tuned on dev only; val/test runs record the settings hash. Benchmark races run headless with the planner inline{STANDALONE ? ' — in this web build they run in your browser as 1-hour races on Daytona' : ''}.</p>
         {bench && result && (
           <div className="flex gap-2">
             <a className="btn" href={api.exportUrl(bench.jobId, 'csv')}>

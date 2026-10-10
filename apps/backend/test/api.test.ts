@@ -194,3 +194,27 @@ describe('backend API', () => {
     expect(fj.result.positionTrace.length).toBeGreaterThan(0);
   }, 400_000);
 });
+
+describe('circuits over the API', () => {
+  it('lists the circuits, serves each geometry and runs a race on Spa with radio and team names', async () => {
+    const t = await api('GET', '/tracks');
+    expect(t.status).toBe(200);
+    expect((t.body as { id: string }[]).map((x) => x.id)).toEqual(['daytona', 'sebring', 'road-atlanta', 'watkins-glen', 'spa']);
+    const g = await api('GET', '/track?trackId=watkins-glen');
+    expect(g.status).toBe(200);
+    expect(g.body.lapLength_m).toBe(5472);
+    expect((await api('GET', '/track?trackId=monza')).status).toBe(422);
+    const p = await api('POST', '/track/preview', { wetness: 0.4, trackTemp_C: 25, rubber: 0.02, overrides: [], trackId: 'spa' });
+    expect(p.status).toBe(200);
+    expect(p.body.segments).toHaveLength(11);
+
+    const id = await runToEnd({ ...RUN, trackId: 'spa' } as typeof RUN);
+    const info = (await api('GET', `/runs/${id}`)).body as RunInfo;
+    expect(info.init?.track.lapLength_m).toBe(7004);
+    expect(info.init?.field.find((c) => c.no === info.init?.ego)?.team).toBe('Ansadyne');
+    const ev = (await api('GET', `/runs/${id}/events?types=radio`)).body as { events: StreamMessage[] };
+    const titles = ev.events.map((m) => (m.payload as { title: string }).title);
+    expect(titles.some((x) => /^Lights out — Ansadyne/.test(x))).toBe(true);
+    expect(titles.some((x) => /^Lap \d+ — P\d+/.test(x))).toBe(true);
+  }, 240_000);
+});

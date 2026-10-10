@@ -366,6 +366,9 @@ export class Race {
           prevEnv: prevEnv ?? envBefore,
           rainIn20: this.env.rainProb(envNow.regimeIdx).in20,
           regimeHistory: [...hist],
+          plan: this.plans[wi],
+          ...this.neighbours(res.records),
+          team: this.model.cfg.field.cars.find((c) => c.no === this.egoNo)?.team,
         }),
       );
       this.radioEnv[wi] = envNow;
@@ -373,6 +376,19 @@ export class Race {
     this.scheduleFamilyCautions(k);
     this.k++;
     return out;
+  }
+
+  /** The cars directly ahead of and behind ours on the road classification (team names for the radio). */
+  private neighbours(records: CarLapRecord[]): { ahead: { team: string; no: number; gap_s: number } | null; behind: { team: string; no: number; gap_s: number } | null } {
+    const me = records.find((r) => r.no === this.egoNo);
+    if (!me) return { ahead: null, behind: null };
+    const name = (no: number) => this.model.cfg.field.cars.find((c) => c.no === no)?.team ?? `Car ${no}`;
+    const a = records.find((r) => r.position === me.position - 1 && (r.running || r.classified));
+    const b = records.find((r) => r.position === me.position + 1 && (r.running || r.classified));
+    return {
+      ahead: a ? { team: name(a.no), no: a.no, gap_s: Math.max(0, me.gapAhead_s) } : null,
+      behind: b ? { team: name(b.no), no: b.no, gap_s: Math.max(0, b.gapAhead_s) } : null,
+    };
   }
 
   private scheduleFamilyCautions(k: number): void {

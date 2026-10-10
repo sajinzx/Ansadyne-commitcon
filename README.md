@@ -9,7 +9,11 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Fastify](https://img.shields.io/badge/Fastify-4-000000?style=flat-square&logo=fastify&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-112%20passing-3ED598?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-124%20passing-3ED598?style=flat-square)
+
+### [▶ Try it live: sajinzx.github.io/Ansadyne-commitcon](https://sajinzx.github.io/Ansadyne-commitcon/)
+
+*Runs entirely in your browser: pick a circuit, press RUN.*
 
 ![The PITWALL race dashboard during a caution](docs/images/dashboard-race.png)
 
@@ -21,7 +25,7 @@
 
 If you watch F1, you know the moment. Lap 30, the tyres are fading, the car ahead is about to pit, and somewhere on the pit wall a strategist has three seconds to decide: **stay out, pit now, or wait for the safety car that might never come.** Races are won and lost on that call.
 
-PITWALL turns that moment into a simulator you can play with. It races a full field of ten GT3-class cars around a (schematic) Daytona road course for 1, 3 or 6 hours. Tyres wear, fuel burns, rain rolls in, cautions bunch the field. And our car, **#12**, is driven by three different strategists **at the same time**, in three parallel universes that share the exact same weather, crashes and luck:
+PITWALL turns that moment into a simulator you can play with. It races a full field of ten GT3-class cars around one of five circuits (schematic Daytona, Sebring, Road Atlanta, Watkins Glen or Spa) for 1, 3 or 6 hours. Tyres wear, fuel burns, rain rolls in, cautions bunch the field. Our team is **Ansadyne** (car **#12**), up against nine rivals wearing F1 team names (McLaren, Mercedes, Red Bull Racing, Ferrari, Williams, Racing Bulls, Aston Martin, Haas, Audi — labels only, no affiliation). Ansadyne's car is driven by three different strategists **at the same time**, in three parallel universes that share the exact same weather, crashes and luck:
 
 | | Strategist | Personality | How it decides |
 |---|---|---|---|
@@ -41,6 +45,10 @@ Because all three live in the same universe-with-the-same-dice, any difference a
 
 ## 🚦 Lights out: run it in 60 seconds
 
+**Online:** open the [live site](https://sajinzx.github.io/Ansadyne-commitcon/). Nothing to install: races, the planner, benchmarks and the Track tab run in Web Workers in your browser.
+
+**Locally**, with the Fastify server:
+
 You need Node.js 20 or newer and pnpm 10.
 
 ```bash
@@ -48,7 +56,7 @@ pnpm install
 pnpm dev     # server on http://127.0.0.1:8787, dashboard on http://127.0.0.1:5173
 ```
 
-Open the dashboard and press **RUN**. The first run takes 2–3 seconds while it calibrates the car. Then:
+Open the dashboard, pick a **Track** in the World Builder and press **RUN**. The first run takes 2–3 seconds while it calibrates the car. Then:
 
 - crank the speed to **20×** or **60×**,
 - smash **INJECT CAUTION** and watch the field bunch up and the strategists argue,
@@ -215,6 +223,8 @@ Pick scenario families, a number of seeds and a split, and PITWALL races them al
 
 Every format runs **real endurance rules**: two drivers per car (Pro plus a Bronze or Silver co-driver), a minimum drive time per driver (20 min in 1 h, 45 min in 3 h and 6 h races) and a 4-hour continuous limit. A car that misses a minimum is classified behind every compliant finisher. Rivals react too: if you undercut a car within about 3 s whose own window is open, it covers you on the next lap.
 
+**Circuits:** Daytona (5.73 km, banked), Sebring (6.02 km, bumpy and long), Road Atlanta (4.09 km, short and fast), Watkins Glen (5.47 km, with the Boot) and Spa-Francorchamps (7.00 km). Each has its own reference lap fitted to 2025 timing, and fuel, wear and caution rates scale with lap length ([docs/calibration.md](docs/calibration.md)).
+
 Plus six experiments (GBM vs mean-reverting randomness, grip volatility, grip–wear correlation, an "oracle" OPT that is told the truth, seed-set stability, hazard scaling) and one-click sensitivity on any assumption.
 
 ---
@@ -290,6 +300,17 @@ flowchart LR
 | `apps/frontend` | the PITWALL dashboard |
 | `docs/spec` | the full implementation specification |
 
+### Two ways to run it
+
+| | Local (server) | Online (static) |
+|---|---|---|
+| Where the simulator runs | Fastify server, Node worker threads | Your browser, Web Workers |
+| Build | `pnpm dev` / `pnpm start` | `pnpm --filter frontend build:pages` (`VITE_STANDALONE=1`) |
+| Same engine, same API | ✔ | ✔ (an in-browser backend serves the same REST routes and stream) |
+| Benchmark races | 3 h (configurable) | 1 h, to stay quick in a browser |
+
+The race session and job runner live in `packages/engine/src/runtime`, so both builds run identical code. Every push to `main` deploys the static site to GitHub Pages and then runs the Playwright suite against the live URL (`.github/workflows/pages.yml`).
+
 ### Commands
 
 | Command | What it does |
@@ -302,6 +323,9 @@ flowchart LR
 | `pnpm --filter frontend test:e2e` | Playwright caution scenario against a running server (`PW_CHROMIUM` can point at a local Chromium) |
 | `pnpm bench --families F1,F2,F3,F5,F6,F7,F10 --seeds 200 --hours 1 --split val --jobs 2 --out docs/bench/val-1h-200.json` | headless benchmark from the command line (paired worlds, Holm-adjusted tests) |
 | `pnpm tsx packages/engine/scripts/trace.ts F2 3 1` | trace one seed: every OPT decision and every BOX BOX call (family, seed, hours) |
+| `pnpm --filter frontend build:pages` | static web build for GitHub Pages (in-browser backend) |
+| `pnpm --filter frontend exec playwright test -c playwright.pages.config.ts` | end-to-end tests of the static build (`PAGES_URL=…` to test the live site) |
+| `pnpm tsx packages/engine/scripts/tracks.ts` | calibrate every circuit and print its numbers |
 | `pnpm typecheck`, `pnpm lint` | TypeScript and ESLint, including the engine's determinism and import-boundary rules |
 
 ### Same seed, same race. Always.

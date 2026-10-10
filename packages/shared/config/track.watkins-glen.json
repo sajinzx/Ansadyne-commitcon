@@ -1,0 +1,741 @@
+{
+ "id": "watkins-glen",
+ "name": "Watkins Glen International (schematic)",
+ "country": "USA",
+ "lapLength_m": {
+  "value": 5472,
+  "provenance": "REPORTED",
+  "note": "3.4 mi long course with the Boot"
+ },
+ "viewBox": [
+  0,
+  0,
+  1000,
+  620
+ ],
+ "meanDryGrip": 0.9984,
+ "segments": [
+  {
+   "id": "S01",
+   "name": "Front Straight",
+   "type": "straight",
+   "start_m": 0,
+   "end_m": 450,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     740.0,
+     540.0
+    ],
+    [
+     748,
+     470
+    ],
+    [
+     752,
+     410
+    ],
+    [
+     753.6,
+     402.3
+    ]
+   ]
+  },
+  {
+   "id": "S02",
+   "name": "Turn 1 (The 90)",
+   "type": "infield_turn",
+   "start_m": 450,
+   "end_m": 650,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 45,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 45,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.56,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     753.6,
+     402.3
+    ],
+    [
+     760,
+     372
+    ],
+    [
+     737.5,
+     351.3
+    ]
+   ]
+  },
+  {
+   "id": "S03",
+   "name": "The Esses",
+   "type": "chicane",
+   "start_m": 650,
+   "end_m": 1250,
+   "elevation_m": {
+    "value": 18,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 200,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 200,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.3,
+     "window_m": 80
+    },
+    {
+     "at": 0.7,
+     "window_m": 80
+    }
+   ],
+   "points": [
+    [
+     737.5,
+     351.3
+    ],
+    [
+     736,
+     350
+    ],
+    [
+     700,
+     318
+    ],
+    [
+     712,
+     270
+    ],
+    [
+     682,
+     230
+    ],
+    [
+     656.8,
+     205.7
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "name": "Back Straight",
+   "type": "straight",
+   "start_m": 1250,
+   "end_m": 2050,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.02,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.6,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     656.8,
+     205.7
+    ],
+    [
+     630,
+     180
+    ],
+    [
+     570,
+     130
+    ],
+    [
+     520,
+     100
+    ],
+    [
+     486,
+     86
+    ],
+    [
+     462,
+     110
+    ],
+    [
+     460.3,
+     109.2
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "name": "Bus Stop (Inner Loop)",
+   "type": "chicane",
+   "start_m": 2050,
+   "end_m": 2350,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 35,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 35,
+   "dryGrip": {
+    "value": 0.97,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.55,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 30
+    },
+    {
+     "at": 0.7,
+     "window_m": 30
+    }
+   ],
+   "points": [
+    [
+     460.3,
+     109.2
+    ],
+    [
+     432,
+     96
+    ],
+    [
+     380,
+     106
+    ],
+    [
+     374.4,
+     111.9
+    ]
+   ]
+  },
+  {
+   "id": "S06",
+   "name": "Outer Loop",
+   "type": "infield_turn",
+   "start_m": 2350,
+   "end_m": 2750,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 170,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 170,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 150
+    }
+   ],
+   "points": [
+    [
+     374.4,
+     111.9
+    ],
+    [
+     338,
+     150
+    ],
+    [
+     324,
+     196
+    ],
+    [
+     316.2,
+     216.9
+    ]
+   ]
+  },
+  {
+   "id": "S07",
+   "name": "The Boot (Turns 5–8)",
+   "type": "infield_turn",
+   "start_m": 2750,
+   "end_m": 3900,
+   "elevation_m": {
+    "value": -12,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 85,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 85,
+   "dryGrip": {
+    "value": 0.99,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.2,
+     "window_m": 60
+    },
+    {
+     "at": 0.5,
+     "window_m": 60
+    },
+    {
+     "at": 0.8,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     316.2,
+     216.9
+    ],
+    [
+     300,
+     260
+    ],
+    [
+     244,
+     328
+    ],
+    [
+     196,
+     398
+    ],
+    [
+     222,
+     458
+    ],
+    [
+     289.3,
+     475.2
+    ]
+   ]
+  },
+  {
+   "id": "S08",
+   "name": "Turns 9–10",
+   "type": "infield_turn",
+   "start_m": 3900,
+   "end_m": 4600,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 120,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 120,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 80
+    },
+    {
+     "at": 0.8,
+     "window_m": 80
+    }
+   ],
+   "points": [
+    [
+     289.3,
+     475.2
+    ],
+    [
+     300,
+     478
+    ],
+    [
+     380,
+     462
+    ],
+    [
+     450,
+     470
+    ],
+    [
+     497.0,
+     492.8
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "name": "Turn 11",
+   "type": "infield_turn",
+   "start_m": 4600,
+   "end_m": 4900,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 60,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 60,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 50
+    }
+   ],
+   "points": [
+    [
+     497.0,
+     492.8
+    ],
+    [
+     512,
+     500
+    ],
+    [
+     552,
+     540
+    ],
+    [
+     570.1,
+     546.0
+    ]
+   ]
+  },
+  {
+   "id": "S10",
+   "name": "Run to the line",
+   "type": "straight",
+   "start_m": 4900,
+   "end_m": 5472,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     570.1,
+     546.0
+    ],
+    [
+     600,
+     556
+    ],
+    [
+     660,
+     560
+    ],
+    [
+     712,
+     556
+    ],
+    [
+     740.0,
+     540.0
+    ]
+   ]
+  }
+ ],
+ "pitLane": {
+  "entry_s_m": 5320,
+  "exit_s_m": 380,
+  "laneLength_m": {
+   "value": 400,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "timingLine_u_m": {
+   "value": 114,
+   "provenance": "ILLUSTRATIVE",
+   "note": "lane distance from pit entry to where the start/finish line crosses the lane"
+  },
+  "box_u_m": {
+   "value": 200,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "speedLimit_kph": {
+   "value": 60,
+   "provenance": "ILLUSTRATIVE",
+   "note": "assumed to apply under green and caution"
+  },
+  "entryLoss_s": {
+   "value": 2.0,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "exitLoss_s": {
+   "value": 1.5,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "points": [
+   [
+    696.3,
+    541.2
+   ],
+   [
+    704.5,
+    540.7
+   ],
+   [
+    710.5,
+    538.5
+   ],
+   [
+    718.1,
+    534.1
+   ],
+   [
+    724.5,
+    530.7
+   ],
+   [
+    725.6,
+    529.9
+   ],
+   [
+    725.8,
+    523.7
+   ],
+   [
+    726.9,
+    513.5
+   ],
+   [
+    728.1,
+    503.3
+   ],
+   [
+    729.2,
+    493.2
+   ],
+   [
+    730.4,
+    483.0
+   ],
+   [
+    731.5,
+    473.0
+   ],
+   [
+    732.4,
+    463.2
+   ],
+   [
+    733.1,
+    453.2
+   ],
+   [
+    733.8,
+    443.0
+   ],
+   [
+    734.4,
+    432.8
+   ],
+   [
+    735.1,
+    422.6
+   ]
+  ]
+ },
+ "sectors": [
+  {
+   "id": "SC1",
+   "from_m": 0,
+   "to_m": 2050,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC2",
+   "from_m": 2050,
+   "to_m": 3900,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC3",
+   "from_m": 3900,
+   "to_m": 5472,
+   "provenance": "ILLUSTRATIVE"
+  }
+ ],
+ "incidentZones": [
+  {
+   "id": "IZ1",
+   "name": "Turn 1 (The 90)",
+   "from_m": 350,
+   "to_m": 650,
+   "categories": [
+    "Braking-zone contact"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ2",
+   "name": "Bus Stop",
+   "from_m": 1950,
+   "to_m": 2350,
+   "categories": [
+    "Chicane contact",
+    "Cutting"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ3",
+   "name": "The Esses",
+   "from_m": 550,
+   "to_m": 1250,
+   "categories": [
+    "High-speed off"
+   ],
+   "level": 3,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ4",
+   "name": "Turn 11",
+   "from_m": 4500,
+   "to_m": 4900,
+   "categories": [
+    "Spin"
+   ],
+   "level": 1,
+   "provenance": "UNCALIBRATED"
+  }
+ ],
+ "car": {
+  "lapRef_s": {
+   "value": 105.5,
+   "provenance": "FITTED",
+   "note": "2025 Six Hours of the Glen GTD Pro pole 1:44.595, GTD pole 1:44.788; race reference set about 0.9 s slower"
+  }
+ }
+}

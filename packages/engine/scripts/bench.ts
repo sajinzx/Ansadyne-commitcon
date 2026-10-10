@@ -20,16 +20,17 @@ const hours = Number(args.hours ?? 1) as 1 | 3 | 6;
 const split = (args.split ?? 'dev') as Split;
 const jobs = Number(args.jobs ?? 2);
 const offset = Number(args.offset ?? 0);
+const trackId = args.track ?? 'daytona';
 const self = fileURLToPath(import.meta.url);
 
 if (args.child) {
   // child: one family, writes its seed records to --child
   const configs = defaultConfigs();
-  const ctx = benchContext(configs, { ...defaultRunConfig(), durationHours: hours });
+  const ctx = benchContext(configs, { ...defaultRunConfig(), durationHours: hours, trackId });
   const fam = families[0];
   const recs: SeedRecord[] = [];
   for (const seed of seedsFor(split, fam, seeds, offset)) {
-    recs.push(runSeed(ctx, fam, seed, { durationHours: hours }));
+    recs.push(runSeed(ctx, fam, seed, { durationHours: hours, trackId }));
     if (recs.length % 10 === 0) process.stderr.write(`${fam} ${recs.length}/${seeds}\n`);
   }
   writeFileSync(args.child, JSON.stringify(recs));
@@ -43,9 +44,9 @@ const queue = [...families];
 const recsBy: Record<string, SeedRecord[]> = {};
 async function worker(): Promise<void> {
   for (let fam = queue.shift(); fam; fam = queue.shift()) {
-    const out = resolve(tmp, `${fam}-${split}-${hours}h-${seeds}.json`);
+    const out = resolve(tmp, `${trackId}-${fam}-${split}-${hours}h-${seeds}.json`);
     await new Promise<void>((ok, fail) => {
-      const p = spawn(process.execPath, [...process.execArgv, self, '--families', fam, '--seeds', String(seeds), '--hours', String(hours), '--split', split, '--offset', String(offset), '--child', out], { stdio: ['ignore', 'inherit', 'inherit'] });
+      const p = spawn(process.execPath, [...process.execArgv, self, '--families', fam, '--seeds', String(seeds), '--hours', String(hours), '--split', split, '--offset', String(offset), '--track', trackId, '--child', out], { stdio: ['ignore', 'inherit', 'inherit'] });
       p.on('exit', (c) => (c === 0 ? ok() : fail(new Error(`${fam} exited ${c}`))));
     });
     recsBy[fam] = JSON.parse(readFileSync(out, 'utf8'));
@@ -55,7 +56,7 @@ await Promise.all(Array.from({ length: jobs }, worker));
 const byFamily = families.map((f) => ({ family: f, index: Math.max(0, FAMILIES.indexOf(f as (typeof FAMILIES)[number])), recs: recsBy[f] }));
 const res = summarize(byFamily);
 const f2 = (x: number) => (x >= 0 ? '+' : '') + x.toFixed(2);
-console.log(`\n${split} · ${hours} h · ${seeds} seeds/family · ${((Date.now() - t0) / 60000).toFixed(1)} min`);
+console.log(`\n${trackId} · ${split} · ${hours} h · ${seeds} seeds/family · ${((Date.now() - t0) / 60000).toFixed(1)} min`);
 console.log('family | B0 | B1 | OPT | OPT−B1 [95% CI] | Holm p | OPT vs B1 W/T/L | OPT−B0 | stops B1/OPT | DNF B1/OPT');
 for (const fr of res) {
   const d = fr.diffs['OPT-B1'];

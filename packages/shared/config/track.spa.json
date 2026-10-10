@@ -1,0 +1,816 @@
+{
+ "id": "spa",
+ "name": "Circuit de Spa-Francorchamps (schematic)",
+ "country": "Belgium",
+ "lapLength_m": {
+  "value": 7004,
+  "provenance": "REPORTED",
+  "note": "7.004 km Grand Prix circuit"
+ },
+ "viewBox": [
+  0,
+  0,
+  1000,
+  620
+ ],
+ "meanDryGrip": 1.0026,
+ "segments": [
+  {
+   "id": "S01",
+   "name": "Start Straight",
+   "type": "straight",
+   "start_m": 0,
+   "end_m": 260,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     260.0,
+     150.0
+    ],
+    [
+     222,
+     146
+    ],
+    [
+     186,
+     140
+    ],
+    [
+     182.5,
+     139.4
+    ]
+   ]
+  },
+  {
+   "id": "S02",
+   "name": "La Source",
+   "type": "infield_turn",
+   "start_m": 260,
+   "end_m": 420,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 22,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 22,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.56,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     182.5,
+     139.4
+    ],
+    [
+     140,
+     132
+    ],
+    [
+     138.7,
+     136.9
+    ]
+   ]
+  },
+  {
+   "id": "S03",
+   "name": "Eau Rouge – Raidillon",
+   "type": "infield_turn",
+   "start_m": 420,
+   "end_m": 980,
+   "elevation_m": {
+    "value": 35,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 150,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 150,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.55,
+     "window_m": 200
+    }
+   ],
+   "points": [
+    [
+     138.7,
+     136.9
+    ],
+    [
+     130,
+     170
+    ],
+    [
+     150,
+     196
+    ],
+    [
+     190,
+     236
+    ],
+    [
+     216.3,
+     272.5
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "name": "Kemmel Straight",
+   "type": "straight",
+   "start_m": 980,
+   "end_m": 2030,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.02,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.6,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     216.3,
+     272.5
+    ],
+    [
+     226,
+     286
+    ],
+    [
+     262,
+     262
+    ],
+    [
+     360,
+     300
+    ],
+    [
+     460,
+     340
+    ],
+    [
+     500.1,
+     356.5
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "name": "Les Combes",
+   "type": "chicane",
+   "start_m": 2030,
+   "end_m": 2370,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 42,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 42,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.3,
+     "window_m": 40
+    },
+    {
+     "at": 0.7,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     500.1,
+     356.5
+    ],
+    [
+     562,
+     382
+    ],
+    [
+     596.3,
+     390.6
+    ]
+   ]
+  },
+  {
+   "id": "S06",
+   "name": "Bruxelles – Malmedy",
+   "type": "infield_turn",
+   "start_m": 2370,
+   "end_m": 2930,
+   "elevation_m": {
+    "value": -20,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 55,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 55,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.3,
+     "window_m": 50
+    },
+    {
+     "at": 0.75,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     596.3,
+     390.6
+    ],
+    [
+     602,
+     392
+    ],
+    [
+     622,
+     430
+    ],
+    [
+     602,
+     460
+    ],
+    [
+     560,
+     478
+    ],
+    [
+     529.2,
+     455.7
+    ]
+   ]
+  },
+  {
+   "id": "S07",
+   "name": "Pouhon",
+   "type": "infield_turn",
+   "start_m": 2930,
+   "end_m": 3710,
+   "elevation_m": {
+    "value": -25,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 110,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 110,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 160
+    },
+    {
+     "at": 0.75,
+     "window_m": 160
+    }
+   ],
+   "points": [
+    [
+     529.2,
+     455.7
+    ],
+    [
+     524,
+     452
+    ],
+    [
+     500,
+     488
+    ],
+    [
+     516,
+     536
+    ],
+    [
+     566,
+     566
+    ],
+    [
+     640,
+     560
+    ],
+    [
+     641.7,
+     559.0
+    ]
+   ]
+  },
+  {
+   "id": "S08",
+   "name": "Fagnes – Campus",
+   "type": "chicane",
+   "start_m": 3710,
+   "end_m": 4470,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 70,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 70,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.3,
+     "window_m": 60
+    },
+    {
+     "at": 0.7,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     641.7,
+     559.0
+    ],
+    [
+     690,
+     530
+    ],
+    [
+     712,
+     482
+    ],
+    [
+     748,
+     446
+    ],
+    [
+     808,
+     424
+    ],
+    [
+     812.3,
+     421.8
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "name": "Stavelot – Blanchimont",
+   "type": "infield_turn",
+   "start_m": 4470,
+   "end_m": 6290,
+   "elevation_m": {
+    "value": 20,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 300,
+    "provenance": "ILLUSTRATIVE",
+    "note": "long flat-out curves back up the hill"
+   },
+   "drawnMinRadius_m": 300,
+   "dryGrip": {
+    "value": 1.01,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.1,
+     "window_m": 160
+    },
+    {
+     "at": 0.75,
+     "window_m": 300
+    }
+   ],
+   "points": [
+    [
+     812.3,
+     421.8
+    ],
+    [
+     872,
+     392
+    ],
+    [
+     846,
+     330
+    ],
+    [
+     760,
+     280
+    ],
+    [
+     640,
+     228
+    ],
+    [
+     500,
+     190
+    ],
+    [
+     462.0,
+     183.3
+    ]
+   ]
+  },
+  {
+   "id": "S10",
+   "name": "Bus Stop Chicane",
+   "type": "chicane",
+   "start_m": 6290,
+   "end_m": 6650,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 22,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 22,
+   "dryGrip": {
+    "value": 0.97,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.55,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 30
+    },
+    {
+     "at": 0.7,
+     "window_m": 30
+    }
+   ],
+   "points": [
+    [
+     462.0,
+     183.3
+    ],
+    [
+     420,
+     176
+    ],
+    [
+     380,
+     172
+    ],
+    [
+     362.8,
+     153.1
+    ]
+   ]
+  },
+  {
+   "id": "S11",
+   "name": "Pit Straight",
+   "type": "straight",
+   "start_m": 6650,
+   "end_m": 7004,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     362.8,
+     153.1
+    ],
+    [
+     360,
+     150
+    ],
+    [
+     330,
+     160
+    ],
+    [
+     296,
+     154
+    ],
+    [
+     260.0,
+     150.0
+    ]
+   ]
+  }
+ ],
+ "pitLane": {
+  "entry_s_m": 6700,
+  "exit_s_m": 230,
+  "laneLength_m": {
+   "value": 400,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "timingLine_u_m": {
+   "value": 228,
+   "provenance": "ILLUSTRATIVE",
+   "note": "lane distance from pit entry to where the start/finish line crosses the lane"
+  },
+  "box_u_m": {
+   "value": 200,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "speedLimit_kph": {
+   "value": 60,
+   "provenance": "ILLUSTRATIVE",
+   "note": "assumed to apply under green and caution"
+  },
+  "entryLoss_s": {
+   "value": 2.0,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "exitLoss_s": {
+   "value": 1.5,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "points": [
+   [
+    354.7,
+    168.6
+   ],
+   [
+    345.2,
+    171.8
+   ],
+   [
+    332.1,
+    175.7
+   ],
+   [
+    318.2,
+    174.2
+   ],
+   [
+    308.1,
+    172.4
+   ],
+   [
+    298.4,
+    170.7
+   ],
+   [
+    289.0,
+    169.3
+   ],
+   [
+    279.3,
+    168.2
+   ],
+   [
+    269.3,
+    167.1
+   ],
+   [
+    259.4,
+    166.0
+   ],
+   [
+    249.4,
+    165.0
+   ],
+   [
+    239.4,
+    163.9
+   ],
+   [
+    229.4,
+    162.9
+   ],
+   [
+    218.9,
+    161.7
+   ],
+   [
+    208.6,
+    160.0
+   ],
+   [
+    198.7,
+    158.3
+   ],
+   [
+    188.8,
+    156.7
+   ]
+  ]
+ },
+ "sectors": [
+  {
+   "id": "SC1",
+   "from_m": 0,
+   "to_m": 2370,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC2",
+   "from_m": 2370,
+   "to_m": 4470,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC3",
+   "from_m": 4470,
+   "to_m": 7004,
+   "provenance": "ILLUSTRATIVE"
+  }
+ ],
+ "incidentZones": [
+  {
+   "id": "IZ1",
+   "name": "La Source",
+   "from_m": 160,
+   "to_m": 420,
+   "categories": [
+    "Turn-1 contact",
+    "Spin"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ2",
+   "name": "Eau Rouge – Raidillon",
+   "from_m": 320,
+   "to_m": 980,
+   "categories": [
+    "High-speed crash",
+    "Debris"
+   ],
+   "level": 3,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ3",
+   "name": "Les Combes",
+   "from_m": 1930,
+   "to_m": 2370,
+   "categories": [
+    "Braking-zone contact"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ4",
+   "name": "Bus Stop",
+   "from_m": 6190,
+   "to_m": 6650,
+   "categories": [
+    "Chicane contact",
+    "Cutting"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  }
+ ],
+ "car": {
+  "lapRef_s": {
+   "value": 137.8,
+   "provenance": "FITTED",
+   "note": "2025 24 Hours of Spa: best GT3 laps 2:17.0–2:17.9; reference set at 2:17.8"
+  }
+ }
+}

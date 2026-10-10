@@ -1,0 +1,726 @@
+{
+ "id": "road-atlanta",
+ "name": "Michelin Raceway Road Atlanta (schematic)",
+ "country": "USA",
+ "lapLength_m": {
+  "value": 4088,
+  "provenance": "REPORTED",
+  "note": "2.540 mi, 12 turns (2025 Petit Le Mans)"
+ },
+ "viewBox": [
+  0,
+  0,
+  1000,
+  620
+ ],
+ "meanDryGrip": 0.999,
+ "segments": [
+  {
+   "id": "S01",
+   "name": "Front Straight",
+   "type": "straight",
+   "start_m": 0,
+   "end_m": 330,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     200.0,
+     430.0
+    ],
+    [
+     260,
+     430
+    ],
+    [
+     330,
+     428
+    ],
+    [
+     342.8,
+     422.5
+    ]
+   ]
+  },
+  {
+   "id": "S02",
+   "name": "Turn 1 (uphill)",
+   "type": "infield_turn",
+   "start_m": 330,
+   "end_m": 530,
+   "elevation_m": {
+    "value": 8,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 85,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 85,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     342.8,
+     422.5
+    ],
+    [
+     372,
+     410
+    ],
+    [
+     392,
+     372
+    ],
+    [
+     400.4,
+     362.7
+    ]
+   ]
+  },
+  {
+   "id": "S03",
+   "name": "Esses (Turns 2–5)",
+   "type": "chicane",
+   "start_m": 530,
+   "end_m": 1250,
+   "elevation_m": {
+    "value": 12,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 150,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 150,
+   "dryGrip": {
+    "value": 0.99,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.25,
+     "window_m": 60
+    },
+    {
+     "at": 0.5,
+     "window_m": 60
+    },
+    {
+     "at": 0.75,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     400.4,
+     362.7
+    ],
+    [
+     430,
+     330
+    ],
+    [
+     476,
+     352
+    ],
+    [
+     526,
+     318
+    ],
+    [
+     576,
+     344
+    ],
+    [
+     618,
+     322
+    ],
+    [
+     662,
+     300
+    ],
+    [
+     664.4,
+     294.9
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "name": "Turn 6",
+   "type": "infield_turn",
+   "start_m": 1250,
+   "end_m": 1490,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 75,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 75,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     664.4,
+     294.9
+    ],
+    [
+     680,
+     262
+    ],
+    [
+     668,
+     226
+    ],
+    [
+     642,
+     214
+    ],
+    [
+     643.7,
+     213.6
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "name": "Turn 7",
+   "type": "infield_turn",
+   "start_m": 1490,
+   "end_m": 1690,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 40,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 40,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.56,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     643.7,
+     213.6
+    ],
+    [
+     720,
+     196
+    ],
+    [
+     728.8,
+     194.2
+    ]
+   ]
+  },
+  {
+   "id": "S06",
+   "name": "Back Straight",
+   "type": "straight",
+   "start_m": 1690,
+   "end_m": 2590,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.02,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.6,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     728.8,
+     194.2
+    ],
+    [
+     800,
+     180
+    ],
+    [
+     872,
+     168
+    ],
+    [
+     906,
+     184
+    ],
+    [
+     918,
+     226
+    ],
+    [
+     896,
+     256
+    ],
+    [
+     852,
+     300
+    ],
+    [
+     801.2,
+     342.6
+    ]
+   ]
+  },
+  {
+   "id": "S07",
+   "name": "Turn 10a/10b Chicane",
+   "type": "chicane",
+   "start_m": 2590,
+   "end_m": 2840,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 40,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 40,
+   "dryGrip": {
+    "value": 0.97,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.55,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 30
+    },
+    {
+     "at": 0.7,
+     "window_m": 30
+    }
+   ],
+   "points": [
+    [
+     801.2,
+     342.6
+    ],
+    [
+     790,
+     352
+    ],
+    [
+     720,
+     410
+    ],
+    [
+     717.2,
+     412.3
+    ]
+   ]
+  },
+  {
+   "id": "S08",
+   "name": "Turn 11 (under the bridge)",
+   "type": "infield_turn",
+   "start_m": 2840,
+   "end_m": 3290,
+   "elevation_m": {
+    "value": -10,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 300,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 300,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 300
+    }
+   ],
+   "points": [
+    [
+     717.2,
+     412.3
+    ],
+    [
+     660,
+     458
+    ],
+    [
+     590,
+     478
+    ],
+    [
+     539.8,
+     480.9
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "name": "Turn 12",
+   "type": "infield_turn",
+   "start_m": 3290,
+   "end_m": 3610,
+   "elevation_m": {
+    "value": -14,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 130,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 130,
+   "dryGrip": {
+    "value": 0.99,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 120
+    }
+   ],
+   "points": [
+    [
+     539.8,
+     480.9
+    ],
+    [
+     520,
+     482
+    ],
+    [
+     400.2,
+     480.0
+    ]
+   ]
+  },
+  {
+   "id": "S10",
+   "name": "Front Stretch",
+   "type": "straight",
+   "start_m": 3610,
+   "end_m": 4088,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     400.2,
+     480.0
+    ],
+    [
+     290,
+     468
+    ],
+    [
+     200.0,
+     430.0
+    ]
+   ]
+  }
+ ],
+ "pitLane": {
+  "entry_s_m": 3930,
+  "exit_s_m": 380,
+  "laneLength_m": {
+   "value": 400,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "timingLine_u_m": {
+   "value": 117,
+   "provenance": "ILLUSTRATIVE",
+   "note": "lane distance from pit entry to where the start/finish line crosses the lane"
+  },
+  "box_u_m": {
+   "value": 200,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "speedLimit_kph": {
+   "value": 60,
+   "provenance": "ILLUSTRATIVE",
+   "note": "assumed to apply under green and caution"
+  },
+  "entryLoss_s": {
+   "value": 2.0,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "exitLoss_s": {
+   "value": 1.5,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "points": [
+   [
+    269.7,
+    442.1
+   ],
+   [
+    256.2,
+    436.4
+   ],
+   [
+    242.7,
+    430.7
+   ],
+   [
+    229.2,
+    425.0
+   ],
+   [
+    216.9,
+    419.8
+   ],
+   [
+    210.5,
+    444.8
+   ],
+   [
+    219.1,
+    414.0
+   ],
+   [
+    233.8,
+    414.0
+   ],
+   [
+    248.4,
+    414.0
+   ],
+   [
+    262.8,
+    413.9
+   ],
+   [
+    277.3,
+    413.5
+   ],
+   [
+    292.0,
+    413.1
+   ],
+   [
+    306.6,
+    412.7
+   ],
+   [
+    320.0,
+    412.3
+   ],
+   [
+    331.2,
+    410.2
+   ],
+   [
+    355.7,
+    434.4
+   ],
+   [
+    369.1,
+    428.6
+   ]
+  ]
+ },
+ "sectors": [
+  {
+   "id": "SC1",
+   "from_m": 0,
+   "to_m": 1250,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC2",
+   "from_m": 1250,
+   "to_m": 2840,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC3",
+   "from_m": 2840,
+   "to_m": 4088,
+   "provenance": "ILLUSTRATIVE"
+  }
+ ],
+ "incidentZones": [
+  {
+   "id": "IZ1",
+   "name": "Turn 1",
+   "from_m": 230,
+   "to_m": 530,
+   "categories": [
+    "Braking-zone contact"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ2",
+   "name": "Turn 7",
+   "from_m": 1390,
+   "to_m": 1690,
+   "categories": [
+    "Spin"
+   ],
+   "level": 1,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ3",
+   "name": "Turn 10 chicane",
+   "from_m": 2490,
+   "to_m": 2840,
+   "categories": [
+    "Chicane contact",
+    "Cutting"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ4",
+   "name": "Turn 11 bridge",
+   "from_m": 2740,
+   "to_m": 3290,
+   "categories": [
+    "High-speed off",
+    "Debris"
+   ],
+   "level": 3,
+   "provenance": "UNCALIBRATED"
+  }
+ ],
+ "car": {
+  "lapRef_s": {
+   "value": 79.6,
+   "provenance": "FITTED",
+   "note": "2025 Petit Le Mans GTD pole 1:18.316, GTD Pro pole 1:18.523; fastest GT3 race laps about 1:20.0"
+  }
+ }
+}

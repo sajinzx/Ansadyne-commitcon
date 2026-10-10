@@ -1,0 +1,732 @@
+{
+ "id": "sebring",
+ "name": "Sebring International Raceway (schematic)",
+ "country": "USA",
+ "lapLength_m": {
+  "value": 6021,
+  "provenance": "REPORTED",
+  "note": "3.741 mi full course (2025 12 Hours of Sebring)"
+ },
+ "viewBox": [
+  0,
+  0,
+  1000,
+  620
+ ],
+ "meanDryGrip": 0.9949,
+ "segments": [
+  {
+   "id": "S01",
+   "name": "Start/Finish Straight",
+   "type": "straight",
+   "start_m": 0,
+   "end_m": 560,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     300.0,
+     520.0
+    ],
+    [
+     420,
+     528
+    ],
+    [
+     469.1,
+     529.6
+    ]
+   ]
+  },
+  {
+   "id": "S02",
+   "name": "Turn 1",
+   "type": "infield_turn",
+   "start_m": 560,
+   "end_m": 820,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 70,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 70,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 70
+    }
+   ],
+   "points": [
+    [
+     469.1,
+     529.6
+    ],
+    [
+     540,
+     532
+    ],
+    [
+     547.7,
+     531.6
+    ]
+   ]
+  },
+  {
+   "id": "S03",
+   "name": "Turns 3–5 Esses",
+   "type": "chicane",
+   "start_m": 820,
+   "end_m": 1460,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 58,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 58,
+   "dryGrip": {
+    "value": 0.99,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.3,
+     "window_m": 50
+    },
+    {
+     "at": 0.7,
+     "window_m": 50
+    }
+   ],
+   "points": [
+    [
+     547.7,
+     531.6
+    ],
+    [
+     610,
+     528
+    ],
+    [
+     665,
+     512
+    ],
+    [
+     700,
+     478
+    ],
+    [
+     706.1,
+     453.7
+    ]
+   ]
+  },
+  {
+   "id": "S04",
+   "name": "Turn 7 Hairpin",
+   "type": "infield_turn",
+   "start_m": 1460,
+   "end_m": 1760,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 22,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 22,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.56,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     706.1,
+     453.7
+    ],
+    [
+     712,
+     430
+    ],
+    [
+     758,
+     400
+    ],
+    [
+     761.6,
+     389.2
+    ]
+   ]
+  },
+  {
+   "id": "S05",
+   "name": "Turns 8–10",
+   "type": "infield_turn",
+   "start_m": 1760,
+   "end_m": 2380,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 85,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 85,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.35,
+     "window_m": 70
+    },
+    {
+     "at": 0.8,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     761.6,
+     389.2
+    ],
+    [
+     774,
+     352
+    ],
+    [
+     808,
+     318
+    ],
+    [
+     842,
+     282
+    ],
+    [
+     828,
+     246
+    ],
+    [
+     816.0,
+     244.1
+    ]
+   ]
+  },
+  {
+   "id": "S06",
+   "name": "Turns 11–13 (Tower)",
+   "type": "infield_turn",
+   "start_m": 2380,
+   "end_m": 3080,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 65,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 65,
+   "dryGrip": {
+    "value": 0.99,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.4,
+     "window_m": 60
+    },
+    {
+     "at": 0.85,
+     "window_m": 60
+    }
+   ],
+   "points": [
+    [
+     816.0,
+     244.1
+    ],
+    [
+     790,
+     240
+    ],
+    [
+     730,
+     238
+    ],
+    [
+     680,
+     210
+    ],
+    [
+     628,
+     196
+    ],
+    [
+     616.4,
+     187.8
+    ]
+   ]
+  },
+  {
+   "id": "S07",
+   "name": "Ullman Straight",
+   "type": "straight",
+   "start_m": 3080,
+   "end_m": 4230,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.02,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.6,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     616.4,
+     187.8
+    ],
+    [
+     580,
+     162
+    ],
+    [
+     520,
+     148
+    ],
+    [
+     470,
+     140
+    ],
+    [
+     380,
+     140
+    ],
+    [
+     279.1,
+     142.1
+    ]
+   ]
+  },
+  {
+   "id": "S08",
+   "name": "Turn 15",
+   "type": "infield_turn",
+   "start_m": 4230,
+   "end_m": 4490,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 30,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "drawnMinRadius_m": 30,
+   "dryGrip": {
+    "value": 0.98,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.56,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 40
+    }
+   ],
+   "points": [
+    [
+     279.1,
+     142.1
+    ],
+    [
+     200.6,
+     147.3
+    ]
+   ]
+  },
+  {
+   "id": "S09",
+   "name": "Turn 16 run",
+   "type": "straight",
+   "start_m": 4490,
+   "end_m": 5050,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": null,
+   "drawnMinRadius_m": 0,
+   "dryGrip": {
+    "value": 1.0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.59,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [],
+   "points": [
+    [
+     200.6,
+     147.3
+    ],
+    [
+     190,
+     148
+    ],
+    [
+     142,
+     168
+    ],
+    [
+     134,
+     214
+    ],
+    [
+     168,
+     262
+    ],
+    [
+     168.8,
+     262.9
+    ]
+   ]
+  },
+  {
+   "id": "S10",
+   "name": "Turn 17 Sunset Bend",
+   "type": "infield_turn",
+   "start_m": 5050,
+   "end_m": 6021,
+   "elevation_m": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "banking_deg": {
+    "value": 0,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "cornerRadius_m": {
+    "value": 150,
+    "provenance": "ILLUSTRATIVE",
+    "note": "long bumpy right-hander onto the front straight"
+   },
+   "drawnMinRadius_m": 150,
+   "dryGrip": {
+    "value": 0.97,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "wetGrip": {
+    "value": 0.55,
+    "provenance": "ILLUSTRATIVE"
+   },
+   "apex": [
+    {
+     "at": 0.5,
+     "window_m": 420
+    }
+   ],
+   "points": [
+    [
+     168.8,
+     262.9
+    ],
+    [
+     208,
+     312
+    ],
+    [
+     238,
+     360
+    ],
+    [
+     252,
+     420
+    ],
+    [
+     270,
+     480
+    ],
+    [
+     300.0,
+     520.0
+    ]
+   ]
+  }
+ ],
+ "pitLane": {
+  "entry_s_m": 5900,
+  "exit_s_m": 420,
+  "laneLength_m": {
+   "value": 400,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "timingLine_u_m": {
+   "value": 89,
+   "provenance": "ILLUSTRATIVE",
+   "note": "lane distance from pit entry to where the start/finish line crosses the lane"
+  },
+  "box_u_m": {
+   "value": 200,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "speedLimit_kph": {
+   "value": 60,
+   "provenance": "ILLUSTRATIVE",
+   "note": "assumed to apply under green and caution"
+  },
+  "entryLoss_s": {
+   "value": 2.0,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "exitLoss_s": {
+   "value": 1.5,
+   "provenance": "ILLUSTRATIVE"
+  },
+  "points": [
+   [
+    290.8,
+    481.1
+   ],
+   [
+    297.0,
+    489.3
+   ],
+   [
+    303.1,
+    497.5
+   ],
+   [
+    307.4,
+    503.6
+   ],
+   [
+    309.1,
+    505.0
+   ],
+   [
+    315.6,
+    505.0
+   ],
+   [
+    325.8,
+    505.7
+   ],
+   [
+    336.0,
+    506.4
+   ],
+   [
+    346.2,
+    507.0
+   ],
+   [
+    356.4,
+    507.7
+   ],
+   [
+    366.6,
+    508.4
+   ],
+   [
+    376.8,
+    509.1
+   ],
+   [
+    387.0,
+    509.8
+   ],
+   [
+    397.2,
+    510.4
+   ],
+   [
+    407.4,
+    511.1
+   ],
+   [
+    417.4,
+    511.8
+   ],
+   [
+    427.5,
+    512.2
+   ]
+  ]
+ },
+ "sectors": [
+  {
+   "id": "SC1",
+   "from_m": 0,
+   "to_m": 1760,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC2",
+   "from_m": 1760,
+   "to_m": 4230,
+   "provenance": "ILLUSTRATIVE"
+  },
+  {
+   "id": "SC3",
+   "from_m": 4230,
+   "to_m": 6021,
+   "provenance": "ILLUSTRATIVE"
+  }
+ ],
+ "incidentZones": [
+  {
+   "id": "IZ1",
+   "name": "Turn 1 braking",
+   "from_m": 460,
+   "to_m": 820,
+   "categories": [
+    "Braking-zone contact"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ2",
+   "name": "Turn 7 hairpin",
+   "from_m": 1360,
+   "to_m": 1760,
+   "categories": [
+    "Spin",
+    "Contact"
+   ],
+   "level": 2,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ3",
+   "name": "Turn 15",
+   "from_m": 4130,
+   "to_m": 4490,
+   "categories": [
+    "Lock-up",
+    "Contact"
+   ],
+   "level": 1,
+   "provenance": "UNCALIBRATED"
+  },
+  {
+   "id": "IZ4",
+   "name": "Sunset Bend",
+   "from_m": 4950,
+   "to_m": 6021,
+   "categories": [
+    "High-speed spin",
+    "Debris"
+   ],
+   "level": 3,
+   "provenance": "UNCALIBRATED"
+  }
+ ],
+ "car": {
+  "lapRef_s": {
+   "value": 120.0,
+   "provenance": "FITTED",
+   "note": "2025 12 Hours of Sebring GTD pole 1:59.131 and GTD Pro pole 1:59.225; race reference set 0.9 s slower"
+  }
+ }
+}

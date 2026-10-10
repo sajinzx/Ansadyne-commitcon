@@ -6,7 +6,7 @@ import { useRace, WORLDS } from '../../store/raceStore';
 import { useUi } from '../../store/uiStore';
 import { TrackMapper } from '../../lib/geometry';
 import { carPose, recordAt, type CarPose } from '../../lib/animation';
-import { egoRecord } from '../../lib/derive';
+import { egoRecord, teamOf } from '../../lib/derive';
 import { fmt, lapTimeStr } from '../../lib/format';
 
 const SECTOR_COLORS = ['var(--opt)', 'var(--b1)', 'var(--b0)'];
@@ -56,6 +56,7 @@ export function RaceMap() {
   }
   const track = init.track;
   const ego = init.ego;
+  const field = init.field;
   const le = (() => {
     const arr = laps[world];
     let found = arr[0];
@@ -102,7 +103,7 @@ export function RaceMap() {
   return (
     <Panel title="Race map" right={chips}>
       <div className="relative w-full" style={{ aspectRatio: '1000 / 620' }}>
-        <svg viewBox="0 0 1000 620" className="absolute inset-0 w-full h-full" role="img" aria-label={`Daytona road course map, lap ${lap}, ${status.toLowerCase()}`}>
+        <svg viewBox="0 0 1000 620" className="absolute inset-0 w-full h-full" role="img" aria-label={`${track.name} map, lap ${lap}, ${status.toLowerCase()}`}>
           <path d={map.centerPath()} fill="none" stroke={caution ? 'var(--caution)' : 'var(--asphalt-edge)'} strokeOpacity={caution ? 0.55 : 1} strokeWidth={caution ? 34 : 30} strokeLinejoin="round" />
           <path d={map.centerPath()} fill="none" stroke="var(--asphalt)" strokeWidth={28} strokeLinejoin="round" />
           {wetness > 0.02 && <path d={map.centerPath()} fill="none" stroke="var(--wet)" strokeOpacity={Math.min(0.6, wetness * 0.6)} strokeWidth={28} strokeLinejoin="round" />}
@@ -121,7 +122,7 @@ export function RaceMap() {
           <text x={sf.point[0]} y={sf.point[1] + 34} fill="#fff" fontSize={10} textAnchor="middle" fontFamily="Barlow Condensed" letterSpacing="0.1em">
             START / FINISH
           </text>
-          {(['S01', 'S10', 'S11'] as const).map((id) => {
+          {track.segments.filter((g) => g.banking_deg.value >= 5).map(({ id }) => {
             const seg = track.segments.find((g) => g.id === id);
             const p = segMid(id);
             return seg ? (
@@ -166,10 +167,11 @@ export function RaceMap() {
                   data-testid={isEgo ? 'ego-car' : undefined}
                 >
                   {isEgo && <circle className="pulse" r={12} fill="none" stroke="var(--opt)" strokeWidth={2} />}
-                  <circle r={12} fill={isEgo ? 'var(--opt)' : '#2B3038'} stroke={selected === no ? '#fff' : isEgo ? 'var(--opt)' : '#6B7380'} strokeWidth={selected === no ? 2.5 : 1.5} />
-                  <text textAnchor="middle" dy={4} fontSize={11} fontFamily="JetBrains Mono" fontWeight={isEgo ? 700 : 500} fill={isEgo ? '#0e1013' : '#fff'}>
-                    {no}
+                  <circle r={13} fill={isEgo ? 'var(--opt)' : '#2B3038'} stroke={selected === no ? '#fff' : isEgo ? 'var(--opt)' : teamOf(field, no).color} strokeWidth={selected === no ? 2.5 : 2} />
+                  <text textAnchor="middle" dy={3.5} fontSize={9} fontFamily="JetBrains Mono" fontWeight={700} fill={isEgo ? '#0e1013' : '#fff'}>
+                    {teamOf(field, no).code}
                   </text>
+                  <title>{`${teamOf(field, no).team} #${no}`}</title>
                   <circle cx={10} cy={-10} r={5} fill={pose.rec.compound === 'wet' ? 'var(--wet)' : '#E8EAED'} stroke="#0e1013" strokeWidth={1.5}>
                     <title>{pose.rec.compound === 'wet' ? 'wet tyres' : 'dry slicks'}</title>
                   </circle>
@@ -180,7 +182,7 @@ export function RaceMap() {
         {hover && hoverRec && (
           <div className="absolute panel pointer-events-none mono text-[11px] leading-5 !p-2 z-10" style={{ left: `${(hover.x / 1000) * 100}%`, top: `${(hover.y / 620) * 100}%`, transform: 'translate(14px, 14px)', minWidth: 190 }}>
             <div className="panel-title !text-text">
-              #{hover.no} · P{hoverRec.position} {hover.no === ego ? '· our car' : ''}
+              {teamOf(field, hover.no).team} #{hover.no} · P{hoverRec.position} {hover.no === ego ? '· our car' : ''}
             </div>
             <div>gap {hoverRec.lapsDown > 0 ? `+${hoverRec.lapsDown} lap` : `+${fmt(hoverRec.gapLeader_s, 1)} s`} · last {lapTimeStr(hoverRec.lapTime_s)}</div>
             <div>
@@ -200,8 +202,8 @@ export function RaceMap() {
         )}
       </div>
       <div className="flex justify-between gap-3 flex-wrap text-muted text-[11px]">
-        <span>Tyre dot: white = dry slicks, blue = wet tyres. S1 lime · S2 blue · S3 orange · Schematic layout, lengths scaled to 5.73 km. Hover a car for state. Ghosts show the same car under each strategy. Rivals follow fixed synthetic policies.</span>
-        {retired.length > 0 && <span className="mono text-bad">Retired: {retired.map((r) => `#${r.no} (${r.dnf?.cause ?? 'dnf'})`).join(', ')}</span>}
+        <span>Tyre dot: white = dry slicks, blue = wet tyres. S1 lime · S2 blue · S3 orange · {`Schematic layout, lengths scaled to ${(track.lapLength_m / 1000).toFixed(2)} km.`} Hover a car for state. Ghosts show the same car under each strategy. Rivals follow fixed synthetic policies.</span>
+        {retired.length > 0 && <span className="mono text-bad">Retired: {retired.map((r) => `${teamOf(field, r.no).team} #${r.no} (${r.dnf?.cause ?? 'dnf'})`).join(', ')}</span>}
       </div>
     </Panel>
   );

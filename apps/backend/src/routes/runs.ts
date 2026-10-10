@@ -1,19 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
-import { ControlSchema, ForkSchema, InjectSchema, PlannerUpdateSchema, RiskSchema, RunConfigSchema, SpeedSchema, type StreamType } from '@pitwall/shared';
+import { ControlSchema, EventsQuerySchema, ForkSchema, InjectSchema, PlannerPatchSchema, RiskSchema, RunConfigSchema, SpeedSchema, type StreamType } from '@pitwall/shared';
 import type { RunManager } from '../runs/RunManager';
 import type { JobManager } from '../jobs/JobManager';
 import { ProblemError, parse } from '../problem';
-
-const TriggersPatch = z
-  .object({
-    gripZ: z.number().min(1).max(5).optional(),
-    gripCooldown: z.number().int().min(0).max(50).optional(),
-    scheduledEvery: z.number().int().min(1).max(100).optional(),
-  })
-  .strict();
-const PlannerPatch = PlannerUpdateSchema.and(z.object({ triggers: TriggersPatch.optional() }));
-const EventsQuery = z.object({ fromSeq: z.coerce.number().int().min(0).optional(), types: z.string().optional(), limit: z.coerce.number().int().min(1).max(100_000).optional() });
 
 export function registerRunRoutes(app: FastifyInstance, runs: RunManager, jobs: JobManager): void {
   const P = '/api/v1/runs';
@@ -40,7 +29,7 @@ export function registerRunRoutes(app: FastifyInstance, runs: RunManager, jobs: 
   });
   app.put<{ Params: { runId: string } }>(`${P}/:runId/risk`, async (req) => runs.updatePlanner(req.params.runId, parse(RiskSchema, req.body)));
   app.put<{ Params: { runId: string } }>(`${P}/:runId/planner`, async (req) => {
-    const { gripZ, gripCooldown, triggers, ...rest } = parse(PlannerPatch, req.body);
+    const { gripZ, gripCooldown, triggers, ...rest } = parse(PlannerPatchSchema, req.body);
     const t = { ...(triggers ?? {}), ...(gripZ !== undefined ? { gripZ } : {}), ...(gripCooldown !== undefined ? { gripCooldown } : {}) };
     return runs.updatePlanner(req.params.runId, { ...rest, ...(Object.keys(t).length ? { triggers: t } : {}) });
   });
@@ -53,7 +42,7 @@ export function registerRunRoutes(app: FastifyInstance, runs: RunManager, jobs: 
     return jobs.fork(info.config, info.repro.injections, f);
   });
   app.get<{ Params: { runId: string } }>(`${P}/:runId/events`, async (req) => {
-    const q = parse(EventsQuery, req.query);
+    const q = parse(EventsQuerySchema, req.query);
     const types = q.types ? (q.types.split(',') as StreamType[]) : undefined;
     return runs.store(req.params.runId).query(q.fromSeq ?? 0, types, q.limit);
   });

@@ -50,7 +50,10 @@ export interface SegmentConfig {
 }
 
 export interface TrackConfig {
+  /** circuit id (daytona, sebring, road-atlanta, watkins-glen, spa) */
+  id?: string;
   name: string;
+  country?: string;
   lapLength_m: Param;
   viewBox: number[];
   meanDryGrip: number;
@@ -212,6 +215,12 @@ export type RivalArchetype = 'ego' | 'reactive' | 'fixedStint' | 'aggressiveCaut
 export interface FieldCar {
   no: number;
   label: string;
+  /** team name shown in the UI (rivals use F1 team names as labels only; ours is Ansadyne) */
+  team: string;
+  /** three-letter code drawn on the map */
+  code: string;
+  /** team colour (hex) for the map ring */
+  color: string;
   paceFactor: number;
   gripSkill: number;
   wearMult: number;
@@ -279,6 +288,8 @@ export interface RunConfig {
   masterSeed: number;
   split: Split;
   family?: string;
+  /** circuit (default daytona); see TRACK_IDS */
+  trackId?: string;
   durationHours: 1 | 3 | 6;
   startClock: string;
   egoGridSlot: number;
@@ -804,7 +815,7 @@ export interface RadioMessage {
   step: number;
   lap: number;
   raceTime_s: number;
-  kind: 'pit' | 'decision' | 'weather' | 'caution' | 'driver' | 'tyres' | 'fuel' | 'penalty' | 'incident';
+  kind: 'pit' | 'decision' | 'weather' | 'caution' | 'driver' | 'tyres' | 'fuel' | 'penalty' | 'incident' | 'status';
   priority: 'info' | 'action' | 'alert';
   title: string;
   text: string;

@@ -1,6 +1,7 @@
 // Model bundle: effective configs + geometry + calibration + surrogate + derived pit-lane constants.
 // Shared by the engine, the baselines and the planner, so all use one physics model.
 import type { Configs, RunConfig, SegmentOverride } from '@pitwall/shared';
+import { applyTrack } from '@pitwall/shared';
 import { TrackGeometry } from '../track/geometry';
 import { airDensity } from './qss';
 import { calibrate, tauAt, type Calibration } from './calibrate';
@@ -49,7 +50,8 @@ export const DEFAULT_WEATHER_MATRIX = [
 
 /** Apply a RunConfig's overrides to the default configs (never mutates the input). */
 export function effectiveConfigs(base: Configs, run: RunConfig): Configs {
-  const cfg = structuredClone(base);
+  // the circuit first (it rescales per-lap quantities), then the run's own overrides on top
+  const cfg = applyTrack(structuredClone(base), run.trackId);
   cfg.race.duration_s = run.durationHours * 3600;
   cfg.race.startClock = run.startClock;
   const car = run.overrides.car;

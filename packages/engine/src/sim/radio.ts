@@ -1,7 +1,7 @@
 // Live "team radio": plain-language messages from the engine about our car in each world, each with the
 // evidence behind it (belief, weather, plan, decision statistics). Messages describe what happened and why;
 // they never reveal hidden truth beyond what the crew can measure (fuel rig, tread gauge).
-import type { Belief, CarLapRecord, Decision, Observation, RaceEvent, RadioMessage, StrategyId } from '@pitwall/shared';
+import type { Belief, CarLapRecord, Decision, Observation, Plan, RaceEvent, RadioMessage, StrategyId } from '@pitwall/shared';
 import type { ModelBundle } from '../vehicle/model';
 import type { EnvState } from '../world/weather';
 import type { CarTruth } from './world';
@@ -45,7 +45,18 @@ export interface RadioContext {
   rainIn20: number;
   /** regime of each of the last few ticks seen by our car (newest last) */
   regimeHistory: string[];
+  /** the strategy's current plan (for the start and status calls) */
+  plan?: Plan | null;
+  /** the car directly ahead and directly behind on the road classification, with team names */
+  ahead?: { team: string; no: number; gap_s: number } | null;
+  behind?: { team: string; no: number; gap_s: number } | null;
+  /** our team name */
+  team?: string;
+  /** laps between status calls (0 = off) */
+  statusEvery?: number;
 }
+
+const WORLD_NAME: Record<StrategyId, string> = { B0: 'static plan', B1: 'rule-based crew', OPT: 'live optimiser' };
 
 const pct = (p: number) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
 
@@ -53,7 +64,7 @@ export function buildRadio(c: RadioContext): RadioMessage[] {
   const out: RadioMessage[] = [];
   const lap = c.rec?.lap ?? c.ego.laps;
   const t = c.rec?.lineCross_s ?? c.ego.lapStart_s;
-  const msg = (m: Omit<RadioMessage, 'world' | 'step' | 'lap' | 'raceTime_s'>) => out.push({ world: c.world, step: c.step, lap, raceTime_s: t, ...m });
+  const msg = (m: Omit<RadioMessage, 'world' | 'step' | 'lap' | 'raceTime_s'>, at = t) => out.push({ world: c.world, step: c.step, lap, raceTime_s: at, ...m });
   const b = c.belief;
   const car = c.model.cfg.car;
   const weatherLine = () =>
@@ -64,6 +75,42 @@ export function buildRadio(c: RadioContext): RadioMessage[] {
     return `fuel (belief) ${b.fuel.mean.toFixed(1)} ± ${b.fuel.sd.toFixed(1)} kg ≈ ${(b.fuel.mean / q).toFixed(1)} laps at ${q.toFixed(2)} kg/lap`;
   };
   const tyreLine = () => `${c.ego.compound} tyres, ${c.ego.tyreAgeLaps} laps old${b ? `, wear (belief) ${(b.W.mean * 100).toFixed(0)}% ± ${(b.W.sd * 100).toFixed(0)}` : ''}`;
+
+  const planLine = () => {
+    const s0 = c.plan?.stops.find((s) => s.lap > lap);
+    if (!s0) return 'no further stop planned';
+    return `next stop lap ${s0.lap}: ${s0.refuel === 'helper' ? 'fuel to the flag or a full tank' : `${s0.refuel.toFixed(0)} kg`}${s0.tyres === 'none' ? ', no tyres' : `, ${s0.tyres} tyres`}`;
+  };
+  const gapLine = () => {
+    const parts: string[] = [];
+    if (c.ahead) parts.push(`${c.ahead.team} #${c.ahead.no} ahead by ${c.ahead.gap_s.toFixed(1)} s`);
+    if (c.behind) parts.push(`${c.behind.team} #${c.behind.no} behind by ${c.behind.gap_s.toFixed(1)} s`);
+    return parts.length ? parts.join(' · ') : null;
+  };
+  const team = c.team ?? `#${c.ego.no}`;
+
+  // ---- lights out: who we are, where we start, what the plan is
+  if (c.rec && c.rec.lap === 1 && !c.rec.pit) {
+    msg({
+      kind: 'status',
+      priority: 'info',
+      title: `Lights out — ${team} P${c.rec.position}`,
+      text: `${c.ego.drivers.lineup[c.ego.drivers.current]?.name ?? 'Driver'} driving on ${c.ego.compound} tyres. Strategy: ${WORLD_NAME[c.world]}; ${planLine()}.`,
+      proof: [fuelLine(), weatherLine(), gapLine()].filter((x): x is string => !!x),
+    }, c.rec.lapStart_s);
+  }
+
+  // ---- regular status call (every few laps, not on pit laps)
+  const every = c.statusEvery ?? 5;
+  if (every > 0 && c.rec && c.rec.lap > 1 && c.rec.lap % every === 0 && !c.rec.pit && c.ego.running) {
+    msg({
+      kind: 'status',
+      priority: 'info',
+      title: `Lap ${c.rec.lap} — P${c.rec.position}`,
+      text: `${gapLine() ?? 'clear track'}. Last lap ${c.rec.lapTime_s.toFixed(2)} s. Plan: ${planLine()}.`,
+      proof: [fuelLine(), tyreLine(), weatherLine(), `driver ${c.ego.drivers.lineup[c.ego.drivers.current]?.name ?? '—'}, ${(c.ego.drivers.total_s[c.ego.drivers.current] / 60).toFixed(0)} min driven`].filter((x): x is string => !!x),
+    });
+  }
 
   // ---- weather state changes seen by our car
   if (c.prevEnv && c.prevEnv.regime !== c.env.regime) {

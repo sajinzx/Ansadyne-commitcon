@@ -1,0 +1,66 @@
+# Builds the static web version (the whole simulator runs in the browser), publishes it to the gh-pages branch
+# (served by GitHub Pages) and then runs the Playwright suite against the live site.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      bundle: ${{ steps.bundle.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the static site
+        run: pnpm --filter frontend build:pages && touch apps/frontend/dist/.nojekyll
+      - id: bundle
+        run: echo "name=$(basename apps/frontend/dist/assets/index-*.js)" >> "$GITHUB_OUTPUT"
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/frontend/dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: 'Deploy static site from ${{ github.sha }}'
+
+  smoke:
+    # end-to-end tests against the live site once GitHub Pages serves the new build
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+    steps:
+      - name: Wait for the new build to go live
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsSL "$PAGES_URL" | grep -q "${{ needs.deploy.outputs.bundle }}"; then echo "live"; exit 0; fi
+            sleep 10
+          done
+          echo "the new build did not go live in 10 minutes"; exit 1
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter frontend exec playwright install --with-deps chromium
+      - name: Test the deployed site
+        run: pnpm --filter frontend exec playwright test -c playwright.pages.config.ts

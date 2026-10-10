@@ -63,7 +63,7 @@ export function TopBar() {
           PITWALL
         </span>
         <span className="mono text-muted cursor-help" title={reproTitle}>
-          synthetic · seed {info?.seedLabel ?? `${cfg.split}-${cfg.masterSeed}`} · Synthetic {cfg.durationHours} h race
+          synthetic · seed {info?.seedLabel ?? `${cfg.split}-${cfg.masterSeed}`} · {(info?.init?.track.name ?? '').replace(/ \(schematic\)$/, '').split(' — ')[0] || cfg.trackId || 'Daytona'} · {cfg.durationHours} h race
         </span>
         <Stat k="Lap" v={`${lap} / ~${init?.expectedLaps ?? Math.round(duration / 107)}`} />
         <Stat k="Clock" v={clockAt(cfg.startClock, t)} />

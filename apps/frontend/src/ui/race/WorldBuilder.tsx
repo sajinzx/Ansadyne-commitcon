@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react';
-import type { RunConfig } from '@pitwall/shared';
+import { useEffect, useState, type ReactNode } from 'react';
+import type { RunConfig, TrackInfo } from '@pitwall/shared';
+import { api } from '../../api/client';
 import { Panel } from '../layout/Panel';
 import { Badge, ProvenanceBadge } from '../layout/Badge';
 import { useRace } from '../../store/raceStore';
@@ -73,6 +74,13 @@ export function WorldBuilder() {
   const fe = s.fieldErrors;
   const [liveErr, setLiveErr] = useState<string | null>(null);
   const setCar = (patch: NonNullable<RunConfig['overrides']['car']>) => s.setOverrides({ car: { ...car, ...patch } });
+  const [tracks, setTracks] = useState<TrackInfo[]>([]);
+  useEffect(() => {
+    api.tracks().then(setTracks).catch(() => setTracks([]));
+  }, []);
+  // per-lap defaults grow with lap length (shared/configs applyTrack); show what this circuit will use
+  const ratio = (tracks.find((t) => t.id === (c.trackId ?? 'daytona'))?.lapLength_m ?? 5730) / 5730;
+  const r4 = (v: number) => Number(v.toPrecision(4));
   const setProc = (patch: NonNullable<RunConfig['overrides']['processes']>) => s.setOverrides({ processes: { ...pr, ...patch } });
   const setPlanner = (patch: NonNullable<RunConfig['overrides']['planner']>) => s.setOverrides({ planner: { ...pl, ...patch } });
   const kappa = pr.kappaX ?? 0.08;
@@ -86,9 +94,7 @@ export function WorldBuilder() {
   return (
     <Panel title="World builder" right={<><Badge color="var(--opt)">SYNTHETIC</Badge><span className="badge text-faint cursor-not-allowed" title="Needs historical timing data; not included">REPLAY</span></>} className="row-span-2">
       <Section title="Race">
-        <Row label="Track">
-          <span className="mono text-[11px] text-right">Daytona Road Course · 5.73 km · schematic</span>
-        </Row>
+        <TrackPicker tracks={tracks} locked={locked} lock={lock} error={fe.trackId} />
         <Row label="Race length" error={fe.durationHours}>
           {lock}
           <select className="field" aria-label="Race length" disabled={locked} value={c.durationHours} onChange={(e) => s.setConfig({ durationHours: Number(e.target.value) as 1 | 3 | 6 })}>
@@ -112,10 +118,10 @@ export function WorldBuilder() {
           <Num label="Fuel capacity" value={car.capacity_kg ?? 82} disabled={locked} onChange={(v) => setCar({ capacity_kg: v })} />
         </Row>
         <Row label="Base burn kg/lap" prov="ASSUMED" error={fe['overrides.car.qBase_kg_per_lap']}>
-          <Num label="Base burn" value={car.qBase_kg_per_lap ?? 2.65} disabled={locked} onChange={(v) => setCar({ qBase_kg_per_lap: v })} />
+          <Num label="Base burn" value={car.qBase_kg_per_lap ?? r4(2.65 * ratio)} disabled={locked} onChange={(v) => setCar({ qBase_kg_per_lap: v })} />
         </Row>
         <Row label="Wear k /lap" prov="ASSUMED" error={fe['overrides.car.kBaseDry_per_lap']}>
-          <Num label="Wear rate" value={car.kBaseDry_per_lap ?? 0.011} disabled={locked} onChange={(v) => setCar({ kBaseDry_per_lap: v })} />
+          <Num label="Wear rate" value={car.kBaseDry_per_lap ?? r4(0.011 * ratio)} disabled={locked} onChange={(v) => setCar({ kBaseDry_per_lap: v })} />
         </Row>
         <Row label="Pit-lane length m" prov="ILLUSTRATIVE" error={fe['overrides.car.laneLength_m']}>
           <Num label="Pit lane length" value={car.laneLength_m ?? 400} disabled={locked} onChange={(v) => setCar({ laneLength_m: v })} />
@@ -143,8 +149,8 @@ export function WorldBuilder() {
             <option value="gbm">GBM (experiment)</option>
           </select>
         </Row>
-        <Row label="Caution hazard /lap" prov="UNCALIBRATED">
-          <Num label="caution hazard" value={o.race?.background_per_lap ?? 0.004} disabled={locked} onChange={(v) => s.setOverrides({ race: { background_per_lap: v } })} />
+        <Row label="Caution hazard /lap" prov="FITTED">
+          <Num label="caution hazard" value={o.race?.background_per_lap ?? r4(0.0135 * ratio)} disabled={locked} onChange={(v) => s.setOverrides({ race: { background_per_lap: v } })} />
         </Row>
         <Row label="P(dry→damp) /tick" prov="ILLUSTRATIVE" error={fe['overrides.weatherMatrix']}>
           <Num
@@ -209,5 +215,31 @@ export function WorldBuilder() {
         {liveErr && <span className="text-bad text-[11px]">{liveErr}</span>}
       </Section>
     </Panel>
+  );
+}
+
+/** Circuit picker: the race is built on the chosen track (locked once a race exists). */
+function TrackPicker({ tracks, locked, lock, error }: { tracks: TrackInfo[]; locked: boolean; lock: ReactNode; error?: string }) {
+  const s = useSession();
+  const id = s.config.trackId ?? 'daytona';
+  const t = tracks.find((x) => x.id === id);
+  return (
+    <div className="flex flex-col gap-0.5">
+      <Row label="Track" error={error}>
+        {lock}
+        <select className="field !w-[190px]" aria-label="Track" data-testid="track-select" disabled={locked} value={id} onChange={(e) => s.setConfig({ trackId: e.target.value })}>
+          {(tracks.length ? tracks : [{ id: 'daytona', name: 'Daytona International Speedway — Road Course' } as TrackInfo]).map((x) => (
+            <option key={x.id} value={x.id}>
+              {x.name.replace(/ — Road Course$/, ' Road Course')}
+            </option>
+          ))}
+        </select>
+      </Row>
+      {t && (
+        <span className="mono text-[10.5px] text-muted text-right">
+          {(t.lapLength_m / 1000).toFixed(2)} km · {t.corners} corner sections · ref lap {Math.floor(t.lapRef_s / 60)}:{(t.lapRef_s % 60).toFixed(1).padStart(4, '0')} · schematic
+        </span>
+      )}
+    </div>
   );
 }

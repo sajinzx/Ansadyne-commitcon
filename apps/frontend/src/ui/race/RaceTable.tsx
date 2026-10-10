@@ -5,6 +5,7 @@ import { useUi } from '../../store/uiStore';
 import { recordAt } from '../../lib/animation';
 import { lapTimeStr } from '../../lib/format';
 import type { CarLapRecord } from '@pitwall/shared';
+import { teamOf } from '../../lib/derive';
 
 export function RaceTable() {
   const world = useUi((s) => s.world);
@@ -13,6 +14,7 @@ export function RaceTable() {
   const select = useUi((s) => s.selectCar);
   const recs = useRace((s) => s.recs[world]);
   const ego = useRace((s) => s.init?.ego ?? 12);
+  const field = useRace((s) => s.init?.field);
   // last completed record per car at the display time (current lap record for "in pit" status)
   const rows: { rec: CarLapRecord; inPit: boolean }[] = [];
   for (const list of Object.values(recs)) {
@@ -30,7 +32,7 @@ export function RaceTable() {
         <thead>
           <tr>
             <th>Pos</th>
-            <th>Car</th>
+            <th>Team</th>
             <th>Gap</th>
             <th>Last</th>
             <th>Tyre</th>
@@ -49,7 +51,10 @@ export function RaceTable() {
                 style={{ background: isEgo ? 'rgba(215,255,63,0.08)' : selected === rec.no ? 'var(--panel-2)' : undefined, opacity: dnf ? 0.45 : 1 }}
               >
                 <td>{dnf ? 'DNF' : rec.position}</td>
-                <td style={{ color: isEgo ? 'var(--opt)' : undefined }}>#{rec.no}</td>
+                <td style={{ color: isEgo ? 'var(--opt)' : undefined }} className="!font-sans">
+                  <span className="inline-block w-1.5 h-3 mr-1.5 align-middle rounded-sm" style={{ background: isEgo ? 'var(--opt)' : teamOf(field, rec.no).color }} aria-hidden />
+                  {teamOf(field, rec.no).team} <span className="mono text-muted text-[11px]">#{rec.no}</span>
+                </td>
                 <td>{dnf ? rec.dnf?.cause ?? '' : rec.position === 1 ? 'leader' : rec.lapsDown > 0 ? `+${rec.lapsDown} LAP` : `+${rec.gapLeader_s.toFixed(1)}`}</td>
                 <td>{inPit ? <span className="text-caution">pit</span> : lapTimeStr(rec.lapTime_s)}</td>
                 <td>

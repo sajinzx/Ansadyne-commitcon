@@ -6,6 +6,7 @@ import { Panel } from '../layout/Panel';
 import { WORLD_COLOR } from '../layout/Badge';
 import { useRace } from '../../store/raceStore';
 import { useUi } from '../../store/uiStore';
+import { teamOf } from '../../lib/derive';
 
 const PRIORITY_COLOR = { action: 'var(--opt)', alert: 'var(--caution)', info: 'var(--b1)' } as const;
 const KIND_ICON: Record<RadioMessage['kind'], string> = {
@@ -18,6 +19,7 @@ const KIND_ICON: Record<RadioMessage['kind'], string> = {
   fuel: '⛽',
   penalty: '⚖️',
   incident: '⚠️',
+  status: '📻',
 };
 
 export function useShownRadio(): RadioMessage[] {
@@ -54,6 +56,7 @@ function Message({ m, open, big = false }: { m: RadioMessage; open: boolean; big
 export function RadioPanel() {
   const shown = useShownRadio();
   const world = useUi((s) => s.world);
+  const init = useRace((s) => s.init);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const latest = shown[shown.length - 1];
@@ -70,7 +73,7 @@ export function RadioPanel() {
       title={
         <span className="flex items-center gap-2">
           <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: flash ? 'var(--opt)' : 'var(--line-2)', boxShadow: flash ? '0 0 10px var(--opt)' : 'none', transition: 'all 150ms' }} aria-hidden />
-          Team radio · car #12 · <span style={{ color: WORLD_COLOR[world] }}>{world}</span>
+          Team radio · {teamOf(init?.field, init?.ego ?? 12).team} #{init?.ego ?? 12} · <span style={{ color: WORLD_COLOR[world] }}>{world}</span>
         </span>
       }
     >

@@ -1,116 +1,146 @@
 {
   "ego": 12,
-  "note": "class-level synthetic models; not manufacturer data",
+  "note": "class-level synthetic models; not manufacturer data. Rival cars carry F1 team names as labels only (no affiliation); our team is Ansadyne.",
   "cars": [
     {
       "no": 12,
-      "label": "Our car · R8 LMS GT3-type",
+      "label": "Ansadyne · our car (GT3-class, synthetic)",
       "paceFactor": 1.0,
       "gripSkill": 1.0,
       "wearMult": 1.0,
       "burnMult": 1.0,
       "wetSkill": 1.0,
       "grid": 6,
-      "archetype": "ego"
+      "archetype": "ego",
+      "team": "Ansadyne",
+      "code": "ANS",
+      "color": "#D7FF3F"
     },
     {
       "no": 5,
-      "label": "911 GT3 R-type",
+      "label": "McLaren · 911 GT3 R-type",
       "paceFactor": 0.996,
       "gripSkill": 1.004,
       "wearMult": 1.05,
       "burnMult": 1.01,
       "wetSkill": 1.02,
       "grid": 1,
-      "archetype": "reactive"
+      "archetype": "reactive",
+      "team": "McLaren",
+      "code": "MCL",
+      "color": "#FF8000"
     },
     {
       "no": 45,
-      "label": "Huracán GT3-type",
+      "label": "Mercedes · Huracán GT3-type",
       "paceFactor": 0.998,
       "gripSkill": 1.0,
       "wearMult": 0.97,
       "burnMult": 1.02,
       "wetSkill": 0.98,
       "grid": 2,
-      "archetype": "fixedStint"
+      "archetype": "fixedStint",
+      "team": "Mercedes",
+      "code": "MER",
+      "color": "#27F4D2"
     },
     {
       "no": 9,
-      "label": "M4 GT3-type",
+      "label": "Red Bull Racing · M4 GT3-type",
       "paceFactor": 0.999,
       "gripSkill": 0.998,
       "wearMult": 1.0,
       "burnMult": 0.98,
       "wetSkill": 1.0,
       "grid": 3,
-      "archetype": "aggressiveCaution"
+      "archetype": "aggressiveCaution",
+      "team": "Red Bull Racing",
+      "code": "RBR",
+      "color": "#3671C6"
     },
     {
       "no": 20,
-      "label": "296 GT3-type",
+      "label": "Ferrari · 296 GT3-type",
       "paceFactor": 1.001,
       "gripSkill": 1.002,
       "wearMult": 1.08,
       "burnMult": 1.0,
       "wetSkill": 1.01,
       "grid": 4,
-      "archetype": "reactive"
+      "archetype": "reactive",
+      "team": "Ferrari",
+      "code": "FER",
+      "color": "#E8002D"
     },
     {
       "no": 8,
-      "label": "AMG GT3-type",
+      "label": "Williams · AMG GT3-type",
       "paceFactor": 1.002,
       "gripSkill": 0.999,
       "wearMult": 0.95,
       "burnMult": 1.03,
       "wetSkill": 0.99,
       "grid": 5,
-      "archetype": "conservative"
+      "archetype": "conservative",
+      "team": "Williams",
+      "code": "WIL",
+      "color": "#64C4FF"
     },
     {
       "no": 3,
-      "label": "Z06 GT3.R-type",
+      "label": "Racing Bulls · Z06 GT3.R-type",
       "paceFactor": 1.003,
       "gripSkill": 1.0,
       "wearMult": 1.02,
       "burnMult": 0.99,
       "wetSkill": 0.97,
       "grid": 7,
-      "archetype": "fixedStint"
+      "archetype": "fixedStint",
+      "team": "Racing Bulls",
+      "code": "RBS",
+      "color": "#6692FF"
     },
     {
       "no": 48,
-      "label": "Mustang GT3-type",
+      "label": "Aston Martin · Mustang GT3-type",
       "paceFactor": 1.004,
       "gripSkill": 0.997,
       "wearMult": 1.0,
       "burnMult": 1.01,
       "wetSkill": 1.0,
       "grid": 8,
-      "archetype": "aggressiveCaution"
+      "archetype": "aggressiveCaution",
+      "team": "Aston Martin",
+      "code": "AMR",
+      "color": "#229971"
     },
     {
       "no": 27,
-      "label": "720S GT3-type",
+      "label": "Haas · 720S GT3-type",
       "paceFactor": 1.005,
       "gripSkill": 1.001,
       "wearMult": 1.04,
       "burnMult": 1.0,
       "wetSkill": 1.03,
       "grid": 9,
-      "archetype": "reactive"
+      "archetype": "reactive",
+      "team": "Haas",
+      "code": "HAA",
+      "color": "#B6BABD"
     },
     {
       "no": 64,
-      "label": "RC F GT3-type",
+      "label": "Audi · RC F GT3-type",
       "paceFactor": 1.007,
       "gripSkill": 0.998,
       "wearMult": 0.98,
       "burnMult": 0.97,
       "wetSkill": 1.0,
       "grid": 10,
-      "archetype": "conservative"
+      "archetype": "conservative",
+      "team": "Audi",
+      "code": "AUD",
+      "color": "#BB0A30"
     }
   ]
 }
