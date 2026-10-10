@@ -1,27 +1,31 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
-import { BenchRequestSchema, SensitivitySchema, TrackPreviewSchema, FAMILIES, defaultConfigs, defaultRunConfig } from '@pitwall/shared';
+import { BenchRequestSchema, ExperimentBodySchema, SensitivitySchema, TrackPreviewSchema, TrackQuerySchema, defaultConfigs, defaultRunConfig, trackList } from '@pitwall/shared';
 import { CODE_VERSION, EXPERIMENTS, buildModel, sensitiveParams, trackPreview, type ModelBundle } from '@pitwall/engine';
 import type { JobManager } from '../jobs/JobManager';
 import { ProblemError, parse } from '../problem';
 
-const ExperimentBody = z
-  .object({ seedsPerFamily: z.number().int().min(1).max(500).default(20), families: z.array(z.enum(FAMILIES)).min(1).default(['F5']) })
-  .strict();
-
-let model: ModelBundle | null = null;
-/** The default calibrated model (track payload, previews); built once on first use. */
-export function defaultModel(): ModelBundle {
-  model ??= buildModel(defaultConfigs(), defaultRunConfig());
-  return model;
+const models = new Map<string, ModelBundle>();
+/** The calibrated model of a circuit (track payload, previews); built once per circuit on first use. */
+export function defaultModel(trackId = 'daytona'): ModelBundle {
+  let m = models.get(trackId);
+  if (!m) {
+    m = buildModel(defaultConfigs(), defaultRunConfig({ trackId }));
+    models.set(trackId, m);
+  }
+  return m;
 }
+
 
 export function registerMiscRoutes(app: FastifyInstance, jobs: JobManager): void {
   const P = '/api/v1';
   app.get(`${P}/health`, async () => ({ status: 'ok', codeVersion: CODE_VERSION, node: process.versions.node }));
   app.get(`${P}/config/defaults`, async () => defaultConfigs());
-  app.get(`${P}/track`, async () => defaultModel().geo.payload());
-  app.post(`${P}/track/preview`, async (req) => trackPreview(defaultModel(), parse(TrackPreviewSchema, req.body)));
+  app.get(`${P}/tracks`, async () => trackList());
+  app.get(`${P}/track`, async (req) => defaultModel(parse(TrackQuerySchema, req.query).trackId).geo.payload());
+  app.post(`${P}/track/preview`, async (req) => {
+    const b = parse(TrackPreviewSchema, req.body);
+    return trackPreview(defaultModel(b.trackId), b);
+  });
   app.get(`${P}/sensitivity/params`, async () => sensitiveParams(defaultConfigs()));
   app.get(`${P}/experiments`, async () => EXPERIMENTS.map((e) => ({ id: e.id, title: e.title, variants: e.variants.map((v) => v.label) })));
 
@@ -32,7 +36,7 @@ export function registerMiscRoutes(app: FastifyInstance, jobs: JobManager): void
   });
   app.post<{ Params: { name: string } }>(`${P}/experiments/:name`, async (req, reply) => {
     if (!EXPERIMENTS.some((e) => e.id === req.params.name)) throw new ProblemError(404, 'Not found', `experiment ${req.params.name} not found`);
-    const b = parse(ExperimentBody, req.body);
+    const b = parse(ExperimentBodySchema, req.body);
     reply.code(202);
     return jobs.experiment(req.params.name, b.families, b.seedsPerFamily);
   });
