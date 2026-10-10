@@ -129,3 +129,14 @@ export function auditEntries(decisions: Decision[], events: { step: number; ev: 
   }
   return out.sort((a, b) => b.step - a.step || (a.kind === 'decision' ? -1 : 1));
 }
+
+/** Team label of a car number from the run's field (falls back to the number). */
+export interface TeamInfo {
+  team: string;
+  code: string;
+  color: string;
+}
+export function teamOf(field: { no: number; team?: string; code?: string; color?: string }[] | undefined, no: number): TeamInfo {
+  const f = field?.find((c) => c.no === no);
+  return { team: f?.team ?? `Car ${no}`, code: f?.code ?? String(no), color: f?.color ?? '#6B7380' };
+}

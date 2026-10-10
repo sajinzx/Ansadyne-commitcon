@@ -8,13 +8,13 @@ import { ProvenanceBadge } from '../layout/Badge';
 import { api, type TrackPreview } from '../../api/client';
 import { TrackMapper } from '../../lib/geometry';
 import { useRace } from '../../store/raceStore';
-import { inject } from '../../store/session';
+import { inject, useSession } from '../../store/session';
 import { useUi } from '../../store/uiStore';
 import { raceOverrides, useTrack } from '../../store/trackStore';
 import { useShownLaps } from '../race/useDisplayed';
 import { egoRecord } from '../../lib/derive';
 import { fmt } from '../../lib/format';
-const TYPE_COLOR: Record<string, string> = { straight: '#5BB8FF', banked: '#D7FF3F', corner: '#FF8C42', chicane: '#FF5A5A', bus_stop: '#FF5A5A', kink: '#B48CFF' };
+const TYPE_COLOR: Record<string, string> = { straight: '#5BB8FF', banked_turn: '#D7FF3F', infield_turn: '#FF8C42', chicane: '#FF5A5A' };
 
 function gripColor(g: number): string {
   const t = Math.max(0, Math.min(1, (g - 0.5) / 0.6));
@@ -25,7 +25,11 @@ function gripColor(g: number): string {
 }
 
 export function TrackView() {
-  const [track, setTrack] = useState<TrackGeometryPayload | null>(useRace.getState().init?.track ?? null);
+  // the circuit of the race that exists, else the one picked in the World Builder
+  const runTrack = useRace((s) => s.init?.track ?? null);
+  const pickedId = useSession((s) => s.config.trackId ?? 'daytona');
+  const trackId = runTrack ? (useRace.getState().info?.config.trackId ?? 'daytona') : pickedId;
+  const [track, setTrack] = useState<TrackGeometryPayload | null>(runTrack);
   const t = useTrack();
   const { wetness, temp, rubber, overrides, segId, colourBy, marker, wetAll, tempOffset, applied } = t;
   const setWetness = (v: number) => t.set({ wetness: v });
@@ -45,12 +49,20 @@ export function TrackView() {
   const nowLap = lastLap ? (egoRecord(lastLap, ego)?.lap ?? 0) : 0;
 
   useEffect(() => {
-    if (!track) api.track().then(setTrack).catch((e) => setErr(String(e)));
+    if (runTrack) {
+      setTrack(runTrack);
+      return;
+    }
+    api.track(trackId).then(setTrack).catch((e) => setErr(String(e)));
+  }, [runTrack, trackId]);
+  useEffect(() => {
+    // a segment the new circuit does not have falls back to its fifth
+    if (track && !track.segments.some((g) => g.id === segId)) t.set({ segId: track.segments[Math.min(4, track.segments.length - 1)].id, overrides: [], marker: 0 });
   }, [track]);
   useEffect(() => {
     const h = setTimeout(() => {
       api
-        .preview({ wetness, trackTemp_C: temp + tempOffset, rubber, overrides: track ? raceOverrides(track.segments.map((g) => g.id), overrides, wetAll) : overrides })
+        .preview({ wetness, trackTemp_C: temp + tempOffset, rubber, overrides: track ? raceOverrides(track.segments.map((g) => g.id), overrides, wetAll) : overrides, trackId })
         .then((p) => {
           setPreview(p);
           setErr(null);
@@ -58,7 +70,7 @@ export function TrackView() {
         .catch((e) => setErr(e instanceof Error ? e.message : String(e)));
     }, 150);
     return () => clearTimeout(h);
-  }, [wetness, temp, rubber, overrides, wetAll, tempOffset, track]);
+  }, [wetness, temp, rubber, overrides, wetAll, tempOffset, track, trackId]);
   const map = useMemo(() => (track ? new TrackMapper(track) : null), [track]);
   if (!track || !map) return <div className="p-6 mono text-muted">{err ?? 'Loading track…'}</div>;
 
