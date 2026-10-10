@@ -10,13 +10,14 @@ import { OptStrategy } from '../src/strategy/opt';
 
 const [fam = 'F1', seedS = '2', hoursS = '1'] = process.argv.slice(2);
 const hours = Number(hoursS) as 1 | 3 | 6;
-const ctx = benchContext(defaultConfigs(), { ...defaultRunConfig(), durationHours: hours });
+const trackId = process.env.TRACK ?? 'daytona';
+const ctx = benchContext(defaultConfigs(), { ...defaultRunConfig(), durationHours: hours, trackId });
 const m = ctx.base;
 const race = new Race({
   configs: m.cfg,
   model: m,
   family: fam,
-  run: { ...defaultRunConfig(), durationHours: hours, masterSeed: Number(seedS), family: fam },
+  run: { ...defaultRunConfig(), durationHours: hours, trackId, masterSeed: Number(seedS), family: fam },
   estimatorFactory: (x) => new Estimator(x),
   strategies: { B0: new B0Strategy(ctx.b0), B1: new B1Strategy(defaultB1Options(m)), OPT: new OptStrategy({ initialPlan: ctx.b0 }) },
 });

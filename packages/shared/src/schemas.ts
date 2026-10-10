@@ -67,6 +67,7 @@ export const RunConfigSchema = z
     masterSeed: z.number().int().min(1).max(1_999_999),
     split: z.enum(['dev', 'val', 'test']),
     family: z.string().optional(),
+    trackId: z.enum(['daytona', 'sebring', 'road-atlanta', 'watkins-glen', 'spa']).optional(),
     durationHours: z.union([z.literal(1), z.literal(3), z.literal(6)]),
     startClock: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
     egoGridSlot: z.number().int().min(1).max(10),
@@ -179,6 +180,7 @@ export const TrackPreviewSchema = z
     trackTemp_C: z.number().min(10).max(60),
     rubber: z.number().min(0).max(0.06),
     overrides: z.array(SegmentOverrideSchema).default([]),
+    trackId: z.enum(['daytona', 'sebring', 'road-atlanta', 'watkins-glen', 'spa']).optional(),
   })
   .strict();
 
@@ -202,3 +204,28 @@ export const BenchRequestSchema = z
   });
 
 export const SensitivitySchema = z.object({ param: z.string(), seeds: z.number().int().min(5).max(500).optional() }).strict();
+
+/** PUT /runs/:id/planner: the live planner settings plus a few trigger thresholds. */
+export const TriggersPatchSchema = z
+  .object({
+    gripZ: z.number().min(1).max(5).optional(),
+    gripCooldown: z.number().int().min(0).max(50).optional(),
+    scheduledEvery: z.number().int().min(1).max(100).optional(),
+  })
+  .strict();
+export const PlannerPatchSchema = PlannerUpdateSchema.and(z.object({ triggers: TriggersPatchSchema.optional() }));
+
+/** GET /runs/:id/events query. */
+export const EventsQuerySchema = z.object({
+  fromSeq: z.coerce.number().int().min(0).optional(),
+  types: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100_000).optional(),
+});
+
+/** POST /experiments/:name body. */
+export const ExperimentBodySchema = z
+  .object({ seedsPerFamily: z.number().int().min(1).max(500).default(20), families: z.array(z.enum(FAMILIES)).min(1).default(['F5']) })
+  .strict();
+
+/** GET /track?trackId= */
+export const TrackQuerySchema = z.object({ trackId: z.enum(['daytona', 'sebring', 'road-atlanta', 'watkins-glen', 'spa']).optional() });

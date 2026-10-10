@@ -1,5 +1,7 @@
 {
+  "id": "daytona",
   "name": "Daytona International Speedway — Road Course (schematic)",
+  "country": "USA",
   "lapLength_m": {
     "value": 5730,
     "provenance": "REPORTED"
