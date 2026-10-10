@@ -9,12 +9,14 @@
     "preview": "vite preview",
     "typecheck": "tsc -p .",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:pages": "tsc -p . && VITE_STANDALONE=1 VITE_BASE=/Ansadyne-commitcon/ vite build"
   },
   "dependencies": {
     "@fontsource/barlow-condensed": "5.0.14",
     "@fontsource/inter": "5.0.20",
     "@fontsource/jetbrains-mono": "5.0.21",
+    "@pitwall/engine": "workspace:*",
     "@pitwall/shared": "workspace:*",
     "d3-array": "3.2.4",
     "d3-scale": "4.0.2",

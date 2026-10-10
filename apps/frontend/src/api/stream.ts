@@ -1,7 +1,7 @@
 // WebSocket client: reconnects from the last rendered seq, reports the display time (≤ 10 msgs/s) and watches
 // heartbeats.
 import type { StreamMessage } from '@pitwall/shared';
-import { API_URL } from './client';
+import { API_URL, STANDALONE, localBackend } from './client';
 
 export interface StreamHandle {
   close(): void;
@@ -10,6 +10,7 @@ export interface StreamHandle {
 }
 
 export function openStream(runId: string, onMessage: (m: StreamMessage) => void, onStatus?: (s: 'open' | 'closed' | 'stale') => void): StreamHandle {
+  if (STANDALONE) return openLocalStream(runId, onMessage, onStatus);
   const wsBase = API_URL.replace(/^http/, 'ws');
   let ws: WebSocket | null = null;
   let lastSeq = -1;
@@ -69,6 +70,42 @@ export function openStream(runId: string, onMessage: (m: StreamMessage) => void,
       ws?.close();
     },
     setDisplayTime: (t: number) => sendDisplay(t),
+    get connected() {
+      return connected;
+    },
+  };
+}
+
+/** The in-browser backend's stream: replay the run's log, then follow it live (no socket, no heartbeats). */
+function openLocalStream(runId: string, onMessage: (m: StreamMessage) => void, onStatus?: (s: 'open' | 'closed' | 'stale') => void): StreamHandle {
+  const clientId = `ui-${runId}`;
+  let closed = false;
+  let connected = false;
+  let unsubscribe: (() => void) | null = null;
+  let lastSeq = -1;
+  void localBackend().then((srv) => {
+    if (closed) return;
+    const store = srv.store(runId);
+    const deliver = (m: StreamMessage) => {
+      if (m.seq <= lastSeq) return;
+      lastSeq = m.seq;
+      onMessage(structuredClone(m));
+    };
+    for (const m of store.query(0).events) deliver(m);
+    unsubscribe = store.subscribe(deliver);
+    connected = true;
+    onStatus?.('open');
+  });
+  return {
+    close() {
+      closed = true;
+      unsubscribe?.();
+      void localBackend().then((srv) => srv.setDisplay(runId, clientId, null));
+      onStatus?.('closed');
+    },
+    setDisplayTime(t: number) {
+      void localBackend().then((srv) => srv.setDisplay(runId, clientId, t));
+    },
     get connected() {
       return connected;
     },

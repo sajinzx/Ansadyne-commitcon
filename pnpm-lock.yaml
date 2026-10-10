@@ -75,6 +75,9 @@ importers:
       '@fontsource/jetbrains-mono':
         specifier: 5.0.21
         version: 5.0.21
+      '@pitwall/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
       '@pitwall/shared':
         specifier: workspace:*
         version: link:../../packages/shared
